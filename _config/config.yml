@@ -4,3 +4,17 @@ After:
   - 'framework/*'
   - 'cms/*'
 ---
+Geocoder:
+  # or use whatver makes sense to you
+  local_ip: '88.188.221.14'
+  default_format: '%S %n, %z %L'
+  cache_enabled: true
+  # look into code/thirdarty/Geocoder/HttpAdapter
+  adapter: 'CurlHttpAdapter'
+  adapter_options : [3,3]
+  # look into code/thirdarty/Geocoder/Provider
+  providers:
+    OpenStreetMap: []
+  geoip_data:
+    city: 'geotools/ressources/GeoLite2-City.mmdb'
+    country: 'geotools/ressources/GeoLite2-Country.mmdb'
