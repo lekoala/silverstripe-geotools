@@ -49,7 +49,7 @@ class Geocoder extends Object {
 	 */
 	public static function getGeocoder() {
 		if (!self::$addressGeocoder) {
-			$adapter = '\\Geocoder\\Geocoder\\HttpAdapter\\' . self::config()->adapter;
+			$adapter = '\\Geocoder\\HttpAdapter\\' . self::config()->adapter;
 			if (!class_exists($adapter)) {
 				throw new RuntimeException("Adapter class $adapter is not defined");
 			}
@@ -60,16 +60,16 @@ class Geocoder extends Object {
 			$reflectionClass = new ReflectionClass($adapter);
 			$adapterInstance = $reflectionClass->newInstanceArgs($adaperOptions);
 
-			$providers = self::config()->providers();
+			$providers = self::config()->providers;
 
-			$chain = new \Geocoder\Provider\ChainProvider();
+			$chain = new \Geocoder\Provider\Chain();
 			foreach ($providers as $provider => $params) {
 				if (isset($params['locale'])) {
 					$params['locale'] = i18n::get_locale();
 				}
 				array_unshift($params, $adapterInstance); //put the adapter as the first param
 
-				$class = '\\Geocoder\\Geocoder\\Provider\\' . $provider;
+				$class = '\\Geocoder\\Provider\\' . $provider;
 				if (!class_exists($class)) {
 					throw new RuntimeException("Provider class $class is not defined");
 				}
@@ -141,12 +141,14 @@ class Geocoder extends Object {
 		}
 
 		//cache support
-		if (!$refresh_cache && self::config()->cache_enabled) {
+		if (self::config()->cache_enabled) {
 			$cache = self::getCache();
 			$cache_key = md5($ip . i18n::get_locale() . $type);
-			$cache_result = $cache->load($cache_key);
-			if ($cache_result) {
-				return unserialize($cache_result);
+			if (!$refresh_cache) {
+				$cache_result = $cache->load($cache_key);
+				if ($cache_result) {
+					return unserialize($cache_result);
+				}
 			}
 		}
 
@@ -185,12 +187,14 @@ class Geocoder extends Object {
 	 */
 	static public function reverseGeocode($latitude, $longitude, $refresh_cache = false) {
 		//cache support
-		if (!$refresh_cache && self::config()->cache_enabled) {
+		if (self::config()->cache_enabled) {
 			$cache = self::getCache();
 			$cache_key = md5($latitude . ',' . $longitude . i18n::get_locale());
-			$cache_result = $cache->load($cache_key);
-			if ($cache_result) {
-				return unserialize($cache_result);
+			if (!$refresh_cache) {
+				$cache_result = $cache->load($cache_key);
+				if ($cache_result) {
+					return unserialize($cache_result);
+				}
 			}
 		}
 
@@ -224,12 +228,14 @@ class Geocoder extends Object {
 	 */
 	static public function geocodeAddress($address, $refresh_cache = false) {
 		//cache support
-		if (!$refresh_cache && self::config()->cache_enabled) {
+		if (self::config()->cache_enabled) {
 			$cache = self::getCache();
 			$cache_key = md5($address . i18n::get_locale());
-			$cache_result = $cache->load($cache_key);
-			if ($cache_result) {
-				return unserialize($cache_result);
+			if ($refresh_cache) {
+				$cache_result = $cache->load($cache_key);
+				if ($cache_result) {
+					return unserialize($cache_result);
+				}
 			}
 		}
 

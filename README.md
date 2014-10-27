@@ -11,7 +11,13 @@ Reverse geocode and address formatting is also supported.
 
 Options for providers and adapters must be provided as an array in the right order.
 The locale must be defined with a placeholder string "locale" that will be replaced
-by 18n::get_locale.
+by 18n::get_locale().
+
+For example:
+    
+    Geocoder:
+        providers:    
+            BingMaps: ['your-key-here','locale']
 
 Caching is also enabled by default since one address is not likely to be
 geolocalized differently. This is very useful since ip lookup is quite slow.
