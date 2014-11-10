@@ -1,6 +1,10 @@
 Silverstripe Geotools module
 ==================
+
 Provide geocoding facilities for Silverstripe.
+
+Geocoder
+==================
 
 This module provides a geocoder based on https://github.com/geocoder-php/Geocoder
 This class is configurable through Silverstripe Config API.
@@ -28,6 +32,17 @@ array.
 Exceptions are catched automatically by the library to make it easier for the
 developper. You can access last throwed exception if you need more details
 about was has happened. Errors are also logged automatically if configured.
+
+Leaflet
+==================
+
+If you geocode stuff, chances are you will need a map. Since you already like
+geocoder, you don't want to be stuck with a single provider.
+
+To build a map, Leaflet is here for you! And this module provides some ready
+to use helpers to easily integrate maps in your pages
+
+Providers demo: http://leaflet-extras.github.io/leaflet-providers/preview/
 
 Compatibility
 ==================
