@@ -10,20 +10,26 @@
 
 namespace Geocoder\Provider;
 
-use Geocoder\Exception\UnsupportedOperation;
-use Geocoder\Exception\NoResult;
+use Geocoder\Exception\InvalidArgument;
 use Geocoder\Exception\InvalidCredentials;
-use Geocoder\HttpAdapter\HttpAdapterInterface;
+use Geocoder\Exception\NoResult;
+use Geocoder\Exception\UnsupportedOperation;
+use Ivory\HttpAdapter\HttpAdapterInterface;
 
 /**
  * @author William Durand <william.durand1@gmail.com>
  */
-class IpInfoDb extends AbstractProvider implements Provider
+class IpInfoDb extends AbstractHttpProvider implements Provider
 {
     /**
      * @var string
      */
-    const ENDPOINT_URL = 'http://api.ipinfodb.com/v3/ip-city/?key=%s&format=json&ip=%s';
+    const CITY_PRECISION_ENDPOINT_URL = 'http://api.ipinfodb.com/v3/ip-city/?key=%s&format=json&ip=%s';
+
+    /**
+     * @var string
+     */
+    const COUNTRY_PRECISION_ENDPOINT_URL = 'http://api.ipinfodb.com/v3/ip-country/?key=%s&format=json&ip=%s';
 
     /**
      * @var string
@@ -31,39 +37,63 @@ class IpInfoDb extends AbstractProvider implements Provider
     private $apiKey;
 
     /**
-     * @param HttpAdapterInterface $adapter An HTTP adapter.
-     * @param string               $apiKey  An API key.
+     * @var string
      */
-    public function __construct(HttpAdapterInterface $adapter, $apiKey)
+    private $endpointUrl;
+
+    /**
+     * @param HttpAdapterInterface $adapter   An HTTP adapter.
+     * @param string               $apiKey    An API key.
+     * @param string               $precision The endpoint precision. Either "city" or "country" (faster)
+     *
+     * @throws Geocoder\Exception\InvalidArgument
+     */
+    public function __construct(HttpAdapterInterface $adapter, $apiKey, $precision = 'city')
     {
         parent::__construct($adapter);
 
         $this->apiKey = $apiKey;
+        switch ($precision) {
+            case 'city':
+                $this->endpointUrl = self::CITY_PRECISION_ENDPOINT_URL;
+                break;
+
+            case 'country':
+                $this->endpointUrl = self::COUNTRY_PRECISION_ENDPOINT_URL;
+                break;
+
+            default:
+                throw new InvalidArgument(sprintf(
+                    'Invalid precision value "%s" (allowed values: "city", "country").',
+                    $precision
+                ));
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
         if (null === $this->apiKey) {
-            throw new InvalidCredentials('No API Key provided');
+            throw new InvalidCredentials('No API Key provided.');
         }
 
         if (!filter_var($address, FILTER_VALIDATE_IP)) {
-            throw new UnsupportedOperation('The IpInfoDbProvider does not support Street addresses.');
+            throw new UnsupportedOperation('The IpInfoDb provider does not support street addresses, only IPv4 addresses.');
+
         }
 
         // This API does not support IPv6
         if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            throw new UnsupportedOperation('The IpInfoDbProvider does not support IPv6 addresses.');
+            throw new UnsupportedOperation('The IpInfoDb provider does not support IPv6 addresses, only IPv4 addresses.');
         }
 
         if ('127.0.0.1' === $address) {
-            return array($this->getLocalhostDefaults());
+            return $this->returnResults([ $this->getLocalhostDefaults() ]);
         }
 
-        $query = sprintf(self::ENDPOINT_URL, $this->apiKey, $address);
+        $query = sprintf($this->endpointUrl, $this->apiKey, $address);
 
         return $this->executeQuery($query);
     }
@@ -71,9 +101,9 @@ class IpInfoDb extends AbstractProvider implements Provider
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
-        throw new UnsupportedOperation('The IpInfoDbProvider is not able to do reverse geocoding.');
+        throw new UnsupportedOperation('The IpInfoDb provider is not able to do reverse geocoding.');
     }
 
     /**
@@ -87,20 +117,20 @@ class IpInfoDb extends AbstractProvider implements Provider
     /**
      * @param string $query
      *
-     * @return array
+     * @return \Geocoder\Model\AddressCollection
      */
     private function executeQuery($query)
     {
-        $content = $this->getAdapter()->getContent($query);
+        $content = (string) $this->getAdapter()->get($query)->getBody();
 
-        if (null === $content) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+        if (empty($content)) {
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $data = (array) json_decode($content);
 
         if (empty($data) || 'OK' !== $data['statusCode']) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $timezone = null;
@@ -108,15 +138,17 @@ class IpInfoDb extends AbstractProvider implements Provider
             $timezone = timezone_name_from_abbr("", (int) substr($data['timeZone'], 0, strpos($data['timeZone'], ':')) * 3600, 0);
         }
 
-        return array(array_merge($this->getDefaults(), array(
-            'latitude'    => isset($data['latitude']) ? $data['latitude'] : null,
-            'longitude'   => isset($data['longitude']) ? $data['longitude'] : null,
-            'locality'    => isset($data['cityName']) ? $data['cityName'] : null,
-            'postalCode'  => isset($data['zipCode']) ? $data['zipCode'] : null,
-            'region'      => isset($data['regionName']) ? $data['regionName'] : null,
-            'country'     => isset($data['countryName']) ? $data['countryName'] : null,
-            'countryCode' => isset($data['countryName']) ? $data['countryCode'] : null,
-            'timezone'    => $timezone,
-        )));
+        return $this->returnResults([
+            array_merge($this->getDefaults(), array(
+                'latitude'    => isset($data['latitude']) ? $data['latitude'] : null,
+                'longitude'   => isset($data['longitude']) ? $data['longitude'] : null,
+                'locality'    => isset($data['cityName']) ? $data['cityName'] : null,
+                'postalCode'  => isset($data['zipCode']) ? $data['zipCode'] : null,
+                'region'      => isset($data['regionName']) ? $data['regionName'] : null,
+                'country'     => isset($data['countryName']) ? $data['countryName'] : null,
+                'countryCode' => isset($data['countryName']) ? $data['countryCode'] : null,
+                'timezone'    => $timezone,
+            ))
+        ]);
     }
 }

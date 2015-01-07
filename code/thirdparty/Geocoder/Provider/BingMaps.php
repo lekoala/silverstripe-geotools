@@ -10,16 +10,18 @@
 
 namespace Geocoder\Provider;
 
-use Geocoder\HttpAdapter\HttpAdapterInterface;
 use Geocoder\Exception\InvalidCredentials;
 use Geocoder\Exception\NoResult;
 use Geocoder\Exception\UnsupportedOperation;
+use Ivory\HttpAdapter\HttpAdapterInterface;
 
 /**
  * @author David Guyon <dguyon@gmail.com>
  */
-class BingMaps extends AbstractProvider implements LocaleAwareProvider
+class BingMaps extends AbstractHttpProvider implements LocaleAwareProvider
 {
+    use LocaleTrait;
+
     /**
      * @var string
      */
@@ -36,32 +38,33 @@ class BingMaps extends AbstractProvider implements LocaleAwareProvider
     private $apiKey;
 
     /**
-     * @param HttpAdapterInterface $adapter An HTTP adapter.
-     * @param string               $apiKey  An API key.
-     * @param string               $locale  A locale (optional).
+     * @param HttpAdapterInterface $adapter An HTTP adapter
+     * @param string               $apiKey  An API key
+     * @param string               $locale  A locale (optional)
      */
     public function __construct(HttpAdapterInterface $adapter, $apiKey, $locale = null)
     {
-        parent::__construct($adapter, $locale);
+        parent::__construct($adapter);
 
         $this->apiKey = $apiKey;
+        $this->locale = $locale;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
         if (null === $this->apiKey) {
-            throw new InvalidCredentials('No API Key provided');
+            throw new InvalidCredentials('No API key provided.');
         }
 
         // This API doesn't handle IPs
         if (filter_var($address, FILTER_VALIDATE_IP)) {
-            throw new UnsupportedOperation('The BingMapsProvider does not support IP addresses.');
+            throw new UnsupportedOperation('The BingMaps provider does not support IP addresses, only street addresses.');
         }
 
-        $query = sprintf(self::GEOCODE_ENDPOINT_URL, $this->getMaxResults(), urlencode($address), $this->apiKey);
+        $query = sprintf(self::GEOCODE_ENDPOINT_URL, $this->getLimit(), urlencode($address), $this->apiKey);
 
         return $this->executeQuery($query);
     }
@@ -69,13 +72,13 @@ class BingMaps extends AbstractProvider implements LocaleAwareProvider
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
         if (null === $this->apiKey) {
-            throw new InvalidCredentials('No API Key provided');
+            throw new InvalidCredentials('No API key provided.');
         }
 
-        $query = sprintf(self::REVERSE_ENDPOINT_URL, $coordinates[0], $coordinates[1], $this->apiKey);
+        $query = sprintf(self::REVERSE_ENDPOINT_URL, $latitude, $longitude, $this->apiKey);
 
         return $this->executeQuery($query);
     }
@@ -90,8 +93,6 @@ class BingMaps extends AbstractProvider implements LocaleAwareProvider
 
     /**
      * @param string $query
-     *
-     * @return array
      */
     private function executeQuery($query)
     {
@@ -99,33 +100,32 @@ class BingMaps extends AbstractProvider implements LocaleAwareProvider
             $query = sprintf('%s&culture=%s', $query, str_replace('_', '-', $this->getLocale()));
         }
 
-        $content = $this->getAdapter()->getContent($query);
+        $content = (string) $this->getAdapter()->get($query)->getBody();
 
-        if (null === $content) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+        if (empty($content)) {
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $json = json_decode($content);
 
         if (!isset($json->resourceSets[0]) || !isset($json->resourceSets[0]->resources)) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $data = (array) $json->resourceSets[0]->resources;
 
-        $results = array();
-
+        $results = [];
         foreach ($data as $item) {
             $coordinates = (array) $item->geocodePoints[0]->coordinates;
 
             $bounds = null;
             if (isset($item->bbox) && is_array($item->bbox) && count($item->bbox) > 0) {
-                $bounds = array(
+                $bounds = [
                     'south' => $item->bbox[0],
                     'west'  => $item->bbox[1],
                     'north' => $item->bbox[2],
                     'east'  => $item->bbox[3]
-                );
+                ];
             }
 
             $streetNumber = null;
@@ -136,7 +136,7 @@ class BingMaps extends AbstractProvider implements LocaleAwareProvider
             $region       = property_exists($item->address, 'adminDistrict') ? (string) $item->address->adminDistrict: '';
             $country      = property_exists($item->address, 'countryRegion') ? (string) $item->address->countryRegion: '';
 
-            $results[] = array_merge($this->getDefaults(), array(
+            $results[] = array_merge($this->getDefaults(), [
                 'latitude'     => $coordinates[0],
                 'longitude'    => $coordinates[1],
                 'bounds'       => $bounds,
@@ -147,9 +147,9 @@ class BingMaps extends AbstractProvider implements LocaleAwareProvider
                 'county'       => empty($county) ? null : $county,
                 'region'       => empty($region) ? null : $region,
                 'country'      => empty($country) ? null : $country,
-            ));
+            ]);
         }
 
-        return $results;
+        return $this->returnResults($results);
     }
 }

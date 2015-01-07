@@ -12,13 +12,20 @@ namespace Geocoder\Provider;
 
 use Geocoder\Exception\NoResult;
 use Geocoder\Exception\UnsupportedOperation;
-use Geocoder\HttpAdapter\HttpAdapterInterface;
+use Ivory\HttpAdapter\HttpAdapterInterface;
 
 /**
  * @author Niklas Närhinen <niklas@narhinen.net>
  */
-class Nominatim extends AbstractProvider implements LocaleAwareProvider
+class Nominatim extends AbstractHttpProvider implements LocaleAwareProvider
 {
+    use LocaleTrait;
+
+    /**
+     * @var string
+     */
+    private $rootUrl;
+
     /**
      * @param HttpAdapterInterface $adapter An HTTP adapter.
      * @param string               $rootUrl Root URL of the nominatim server
@@ -26,51 +33,51 @@ class Nominatim extends AbstractProvider implements LocaleAwareProvider
      */
     public function __construct(HttpAdapterInterface $adapter, $rootUrl, $locale = null)
     {
-        parent::__construct($adapter, $locale);
+        parent::__construct($adapter);
 
         $this->rootUrl = rtrim($rootUrl, '/');
+        $this->locale  = $locale;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
         // This API does not support IPv6
         if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            throw new UnsupportedOperation('The NominatimProvider does not support IPv6 addresses.');
+            throw new UnsupportedOperation('The ' . get_called_class() . ' provider does not support IPv6 addresses.');
         }
 
         if ('127.0.0.1' === $address) {
-            return array($this->getLocalhostDefaults());
+            return $this->returnResults([ $this->getLocalhostDefaults() ]);
         }
 
-        $query   = sprintf($this->getGeocodeEndpointUrl(), urlencode($address), $this->getMaxResults());
+        $query   = sprintf($this->getGeocodeEndpointUrl(), urlencode($address), $this->getLimit());
         $content = $this->executeQuery($query);
 
-        if (null === $content) {
-            throw new NoResult(sprintf('Could not resolve address "%s"', $address));
+        if (empty($content)) {
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $doc = new \DOMDocument();
         if (!@$doc->loadXML($content) || null === $doc->getElementsByTagName('searchresults')->item(0)) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $searchResult = $doc->getElementsByTagName('searchresults')->item(0);
         $places = $searchResult->getElementsByTagName('place');
 
         if (null === $places || 0 === $places->length) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
-        $results = array();
-
+        $results = [];
         foreach ($places as $place) {
             $boundsAttr = $place->getAttribute('boundingbox');
-            list($bounds['south'], $bounds['north'], $bounds['west'], $bounds['east']) = $boundsAttr
-                ? explode(',', $boundsAttr)
-                : null;
+            $bounds     = [];
+
+            list($bounds['south'], $bounds['north'], $bounds['west'], $bounds['east']) = $boundsAttr ? explode(',', $boundsAttr) : null;
 
             $results[] = array_merge($this->getDefaults(), array(
                 'latitude'     => $place->getAttribute('lat'),
@@ -88,43 +95,45 @@ class Nominatim extends AbstractProvider implements LocaleAwareProvider
             ));
         }
 
-        return $results;
+        return $this->returnResults($results);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
-        $query   = sprintf($this->getReverseEndpointUrl(), $coordinates[0], $coordinates[1]);
+        $query   = sprintf($this->getReverseEndpointUrl(), $latitude, $longitude);
         $content = $this->executeQuery($query);
 
-        if (null === $content) {
-            throw new NoResult(sprintf('Unable to resolve the coordinates %s', implode(', ', $coordinates)));
+        if (empty($content)) {
+            throw new NoResult(sprintf('Unable to find results for coordinates [ %f, %f ].', $latitude, $longitude));
         }
 
         $doc = new \DOMDocument();
         if (!@$doc->loadXML($content) || $doc->getElementsByTagName('error')->length > 0) {
-            throw new NoResult(sprintf('Could not resolve coordinates %s', implode(', ', $coordinates)));
+            throw new NoResult(sprintf('Unable to find results for coordinates [ %f, %f ].', $latitude, $longitude));
         }
 
         $searchResult = $doc->getElementsByTagName('reversegeocode')->item(0);
         $addressParts = $searchResult->getElementsByTagName('addressparts')->item(0);
         $result       = $searchResult->getElementsByTagName('result')->item(0);
 
-        return array(array_merge($this->getDefaults(), array(
-            'latitude'     => $result->getAttribute('lat'),
-            'longitude'    => $result->getAttribute('lon'),
-            'postalCode'   => $this->getNodeValue($addressParts->getElementsByTagName('postcode')),
-            'county'       => $this->getNodeValue($addressParts->getElementsByTagName('county')),
-            'region'       => $this->getNodeValue($addressParts->getElementsByTagName('state')),
-            'streetNumber' => $this->getNodeValue($addressParts->getElementsByTagName('house_number')),
-            'streetName'   => $this->getNodeValue($addressParts->getElementsByTagName('road')) ?: $this->getNodeValue($addressParts->getElementsByTagName('pedestrian')),
-            'locality'     => $this->getNodeValue($addressParts->getElementsByTagName('city')),
-            'subLocality'  => $this->getNodeValue($addressParts->getElementsByTagName('suburb')),
-            'country'      => $this->getNodeValue($addressParts->getElementsByTagName('country')),
-            'countryCode'  => strtoupper($this->getNodeValue($addressParts->getElementsByTagName('country_code'))),
-        )));
+        return $this->returnResults([
+            array_merge($this->getDefaults(), [
+                'latitude'     => $result->getAttribute('lat'),
+                'longitude'    => $result->getAttribute('lon'),
+                'postalCode'   => $this->getNodeValue($addressParts->getElementsByTagName('postcode')),
+                'county'       => $this->getNodeValue($addressParts->getElementsByTagName('county')),
+                'region'       => $this->getNodeValue($addressParts->getElementsByTagName('state')),
+                'streetNumber' => $this->getNodeValue($addressParts->getElementsByTagName('house_number')),
+                'streetName'   => $this->getNodeValue($addressParts->getElementsByTagName('road')) ?: $this->getNodeValue($addressParts->getElementsByTagName('pedestrian')),
+                'locality'     => $this->getNodeValue($addressParts->getElementsByTagName('city')),
+                'subLocality'  => $this->getNodeValue($addressParts->getElementsByTagName('suburb')),
+                'country'      => $this->getNodeValue($addressParts->getElementsByTagName('country')),
+                'countryCode'  => strtoupper($this->getNodeValue($addressParts->getElementsByTagName('country_code'))),
+            ])
+        ]);
     }
 
     /**
@@ -132,13 +141,11 @@ class Nominatim extends AbstractProvider implements LocaleAwareProvider
      */
     public function getName()
     {
-        return 'openstreetmap';
+        return 'nominatim';
     }
 
     /**
      * @param string $query
-     *
-     * @return string
      */
     private function executeQuery($query)
     {
@@ -146,30 +153,19 @@ class Nominatim extends AbstractProvider implements LocaleAwareProvider
             $query = sprintf('%s&accept-language=%s', $query, $this->getLocale());
         }
 
-        return $this->getAdapter()->getContent($query);
+        return (string) $this->getAdapter()->get($query)->getBody();
     }
 
-    /**
-     * @return string
-     */
     private function getGeocodeEndpointUrl()
     {
-        return $this->rootUrl.'/search?q=%s&format=xml&addressdetails=1&limit=%d';
+        return $this->rootUrl . '/search?q=%s&format=xml&addressdetails=1&limit=%d';
     }
 
-    /**
-     * @return string
-     */
     private function getReverseEndpointUrl()
     {
-        return $this->rootUrl.'/reverse?format=xml&lat=%F&lon=%F&addressdetails=1&zoom=18';
+        return $this->rootUrl . '/reverse?format=xml&lat=%F&lon=%F&addressdetails=1&zoom=18';
     }
 
-    /**
-     * @param \DOMNodeList
-     *
-     * @return string
-     */
     private function getNodeValue(\DOMNodeList $element)
     {
         return $element->length ? $element->item(0)->nodeValue : null;

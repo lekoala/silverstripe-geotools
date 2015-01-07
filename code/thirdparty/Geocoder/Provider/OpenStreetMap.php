@@ -10,7 +10,7 @@
 
 namespace Geocoder\Provider;
 
-use Geocoder\HttpAdapter\HttpAdapterInterface;
+use Ivory\HttpAdapter\HttpAdapterInterface;
 
 /**
  * @author Niklas Närhinen <niklas@narhinen.net>
@@ -29,5 +29,13 @@ class OpenStreetMap extends Nominatim
     public function __construct(HttpAdapterInterface $adapter, $locale = null)
     {
         parent::__construct($adapter, static::ROOT_URL, $locale);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getName()
+    {
+        return 'openstreetmap';
     }
 }

@@ -10,15 +10,17 @@
 
 namespace Geocoder\Provider;
 
-use Geocoder\Exception\UnsupportedOperation;
 use Geocoder\Exception\NoResult;
-use Geocoder\HttpAdapter\HttpAdapterInterface;
+use Geocoder\Exception\UnsupportedOperation;
+use Ivory\HttpAdapter\HttpAdapterInterface;
 
 /**
  * @author Antoine Corcy <contact@sbin.dk>
  */
-class Yandex extends AbstractProvider implements LocaleAwareProvider
+class Yandex extends AbstractHttpProvider implements LocaleAwareProvider
 {
+    use LocaleTrait;
+
     /**
      * @var string
      */
@@ -32,7 +34,7 @@ class Yandex extends AbstractProvider implements LocaleAwareProvider
     /**
      * @var string
      */
-    private $toponym = null;
+    private $toponym;
 
     /**
      * @param HttpAdapterInterface $adapter An HTTP adapter.
@@ -41,19 +43,20 @@ class Yandex extends AbstractProvider implements LocaleAwareProvider
      */
     public function __construct(HttpAdapterInterface $adapter, $locale = null, $toponym = null)
     {
-        parent::__construct($adapter, $locale);
+        parent::__construct($adapter);
 
+        $this->locale  = $locale;
         $this->toponym = $toponym;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
         // This API doesn't handle IPs
         if (filter_var($address, FILTER_VALIDATE_IP)) {
-            throw new UnsupportedOperation('The YandexProvider does not support IP addresses.');
+            throw new UnsupportedOperation('The Yandex provider does not support IP addresses, only street addresses.');
         }
 
         $query = sprintf(self::GEOCODE_ENDPOINT_URL, urlencode($address));
@@ -64,9 +67,9 @@ class Yandex extends AbstractProvider implements LocaleAwareProvider
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
-        $query = sprintf(self::REVERSE_ENDPOINT_URL, $coordinates[1], $coordinates[0]);
+        $query = sprintf(self::REVERSE_ENDPOINT_URL, $longitude, $latitude);
 
         if (null !== $this->toponym) {
             $query = sprintf('%s&kind=%s', $query, $this->toponym);
@@ -85,8 +88,6 @@ class Yandex extends AbstractProvider implements LocaleAwareProvider
 
     /**
      * @param string $query
-     *
-     * @return array
      */
     private function executeQuery($query)
     {
@@ -94,25 +95,28 @@ class Yandex extends AbstractProvider implements LocaleAwareProvider
             $query = sprintf('%s&lang=%s', $query, str_replace('_', '-', $this->getLocale()));
         }
 
-        $query = sprintf('%s&results=%d', $query, $this->getMaxResults());
+        $query = sprintf('%s&results=%d', $query, $this->getLimit());
 
-        $content = $this->getAdapter()->getContent($query);
+        $content = (string) $this->getAdapter()->get($query)->getBody();
         $json    = (array) json_decode($content, true);
 
         if (empty($json) || '0' === $json['response']['GeoObjectCollection']['metaDataProperty']['GeocoderResponseMetaData']['found']) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $data = $json['response']['GeoObjectCollection']['featureMember'];
 
-        $results = array();
-
+        $results = [];
         foreach ($data as $item) {
             $bounds = null;
             $details = array('pos' => ' ');
 
             array_walk_recursive(
                 $item['GeoObject'],
+
+                /**
+                 * @param string $value
+                 */
                 function ($value, $key) use (&$details) {$details[$key] = $value;}
             );
 
@@ -144,6 +148,6 @@ class Yandex extends AbstractProvider implements LocaleAwareProvider
             ));
         }
 
-        return $results;
+        return $this->returnResults($results);
     }
 }

@@ -13,17 +13,19 @@ namespace Geocoder\Provider;
 use Geocoder\Exception\InvalidCredentials;
 use Geocoder\Exception\NoResult;
 use Geocoder\Exception\UnsupportedOperation;
-use Geocoder\HttpAdapter\HttpAdapterInterface;
+use Ivory\HttpAdapter\HttpAdapterInterface;
 
 /**
  * @author Antoine Corcy <contact@sbin.dk>
  */
-class TomTom extends AbstractProvider implements LocaleAwareProvider
+class TomTom extends AbstractHttpProvider implements LocaleAwareProvider
 {
+    use LocaleTrait;
+
     /**
      * @var string
      */
-    const GEOCODE_ENDPOINT_URL = 'https://api.tomtom.com/lbs/geocoding/geocode?key=%s&query=%s&maxResults=%d';
+    const GEOCODE_ENDPOINT_URL = 'https://api.tomtom.com/lbs/services/geocode/4/geocode?key=%s&query=%s&maxResults=%d';
 
     /**
      * @var string
@@ -33,7 +35,7 @@ class TomTom extends AbstractProvider implements LocaleAwareProvider
     /**
      * @var string
      */
-    private $apiKey = null;
+    private $apiKey;
 
     /**
      * @param HttpAdapterInterface $adapter An HTTP adapter.
@@ -42,26 +44,27 @@ class TomTom extends AbstractProvider implements LocaleAwareProvider
      */
     public function __construct(HttpAdapterInterface $adapter, $apiKey, $locale = null)
     {
-        parent::__construct($adapter, $locale);
+        parent::__construct($adapter);
 
         $this->apiKey = $apiKey;
+        $this->locale = $locale;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
         if (null === $this->apiKey) {
-            throw new InvalidCredentials('No Geocoding API Key provided');
+            throw new InvalidCredentials('No API Key provided.');
         }
 
         // This API doesn't handle IPs
         if (filter_var($address, FILTER_VALIDATE_IP)) {
-            throw new UnsupportedOperation('The TomTomProvider does not support IP addresses.');
+            throw new UnsupportedOperation('The TomTom provider does not support IP addresses, only street addresses.');
         }
 
-        $query = sprintf(self::GEOCODE_ENDPOINT_URL, $this->apiKey, rawurlencode($address), $this->getMaxResults());
+        $query = sprintf(self::GEOCODE_ENDPOINT_URL, $this->apiKey, rawurlencode($address), $this->getLimit());
 
         return $this->executeQuery($query);
     }
@@ -69,13 +72,13 @@ class TomTom extends AbstractProvider implements LocaleAwareProvider
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
         if (null === $this->apiKey) {
-            throw new InvalidCredentials('No Map API Key provided');
+            throw new InvalidCredentials('No Map API Key provided.');
         }
 
-        $query = sprintf(self::REVERSE_ENDPOINT_URL, $this->apiKey, $coordinates[0], $coordinates[1]);
+        $query = sprintf(self::REVERSE_ENDPOINT_URL, $this->apiKey, $latitude, $longitude);
 
         return $this->executeQuery($query);
     }
@@ -90,8 +93,6 @@ class TomTom extends AbstractProvider implements LocaleAwareProvider
 
     /**
      * @param string $query
-     *
-     * @return array
      */
     private function executeQuery($query)
     {
@@ -101,18 +102,18 @@ class TomTom extends AbstractProvider implements LocaleAwareProvider
             $query = sprintf('%s&language=%s', $query, substr($this->getLocale(), 0, 2));
         }
 
-        $content = $this->getAdapter()->getContent($query);
+        $content = (string) $this->getAdapter()->get($query)->getBody();
 
         try {
             $xml = new \SimpleXmlElement($content);
         } catch (\Exception $e) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $attributes = $xml->attributes();
 
         if (isset($attributes['count']) && 0 === (int) $attributes['count']) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         if (isset($attributes['errorCode'])) {
@@ -120,30 +121,24 @@ class TomTom extends AbstractProvider implements LocaleAwareProvider
                 throw new InvalidCredentials('Map API Key provided is not valid.');
             }
 
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
         $data = isset($xml->geoResult) ? $xml->geoResult : $xml->reverseGeoResult;
 
 
         if (0 === count($data)) {
-            return array($this->getResultArray($data));
+            return $this->returnResults([ $this->getResultArray($data) ]);
         }
 
-        $results = array();
-
+        $results = [];
         foreach ($data as $item) {
             $results[] = $this->getResultArray($item);
         }
 
-        return $results;
+        return $this->returnResults($results);
     }
 
-    /**
-     * @param \SimpleXmlElement $data
-     *
-     * @return array
-     */
     private function getResultArray(\SimpleXmlElement $data)
     {
         return array_merge($this->getDefaults(), array(

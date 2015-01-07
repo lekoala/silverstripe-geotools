@@ -10,77 +10,77 @@
 
 namespace Geocoder\Provider;
 
-use Geocoder\Exception\NoResult;
-use Geocoder\Exception\InvalidArgument;
-use Geocoder\Exception\UnsupportedOperation;
-use Geocoder\HttpAdapter\GeoIP2Adapter;
-use Geocoder\HttpAdapter\HttpAdapterInterface;
 use GeoIp2\Exception\AddressNotFoundException;
-use GeoIp2\Model\City;
+use Geocoder\Adapter\GeoIP2Adapter;
+use Geocoder\Exception\NoResult;
+use Geocoder\Exception\UnsupportedOperation;
 
 /**
  * @author Jens Wiese <jens@howtrueisfalse.de>
  */
-class GeoIP2 extends AbstractProvider implements Provider
+class GeoIP2 extends AbstractProvider implements LocaleAwareProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(HttpAdapterInterface $adapter, $locale = 'en')
-    {
-        if (false === $adapter instanceof GeoIP2Adapter) {
-            throw new InvalidArgument(
-                'GeoIP2Adapter is needed in order to access the GeoIP2 service.'
-            );
-        }
+    use LocaleTrait;
 
-        parent::__construct($adapter, $locale);
+    /**
+     * @var GeoIP2Adapter
+     */
+    private $adapter;
+
+    public function __construct(GeoIP2Adapter $adapter, $locale = 'en')
+    {
+        parent::__construct();
+
+        $this->adapter = $adapter;
+        $this->locale  = $locale;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
-        if (false === filter_var($address, FILTER_VALIDATE_IP)) {
-            throw new UnsupportedOperation(sprintf('The %s does not support street addresses.', __CLASS__));
+        if (!filter_var($address, FILTER_VALIDATE_IP)) {
+            throw new UnsupportedOperation('The GeoIP2 provider does not support street addresses, only IP addresses.');
         }
 
         if ('127.0.0.1' === $address) {
-            return $this->getLocalhostDefaults();
+            return $this->returnResults([ $this->getLocalhostDefaults() ]);
         }
 
         $result = json_decode($this->executeQuery($address));
 
         //Try to extract the region name and code
-        $region = null;
+        $region     = null;
         $regionCode = null;
         if (isset($result->subdivisions) && is_array($result->subdivisions) && !empty($result->subdivisions)) {
             $lastSubdivision = array_pop($result->subdivisions);
 
-            $region = (isset($lastSubdivision->names->{$this->locale}) ? $lastSubdivision->names->{$this->locale} : null);
+            $region     = (isset($lastSubdivision->names->{$this->locale}) ? $lastSubdivision->names->{$this->locale} : null);
             $regionCode = (isset($lastSubdivision->iso_code) ? $lastSubdivision->iso_code : null);
         }
 
-        return array($this->fixEncoding(array_merge($this->getDefaults(), array(
-            'countryCode' => (isset($result->country->iso_code) ? $result->country->iso_code : null),
-            'country'     => (isset($result->country->names->{$this->locale}) ? $result->country->names->{$this->locale} : null),
-            'locality'    => (isset($result->city->names->{$this->locale}) ? $result->city->names->{$this->locale} : null),
-            'latitude'    => (isset($result->location->latitude) ? $result->location->latitude : null),
-            'longitude'   => (isset($result->location->longitude) ? $result->location->longitude : null),
-            'timezone'    => (isset($result->location->timezone) ? $result->location->timezone : null),
-            'postalCode'  => (isset($result->location->postalcode) ? $result->location->postalcode : null),
-            'region'      => $region,
-            'regionCode'  => $regionCode
-        ))));
+        return $this->returnResults([
+            $this->fixEncoding(array_merge($this->getDefaults(), array(
+                'countryCode' => (isset($result->country->iso_code) ? $result->country->iso_code : null),
+                'country'     => (isset($result->country->names->{$this->locale}) ? $result->country->names->{$this->locale} : null),
+                'locality'    => (isset($result->city->names->{$this->locale}) ? $result->city->names->{$this->locale} : null),
+                'latitude'    => (isset($result->location->latitude) ? $result->location->latitude : null),
+                'longitude'   => (isset($result->location->longitude) ? $result->location->longitude : null),
+                'timezone'    => (isset($result->location->timezone) ? $result->location->timezone : null),
+                'postalCode'  => (isset($result->location->postalcode) ? $result->location->postalcode : null),
+                'region'      => $region,
+                'regionCode'  => $regionCode
+            )))
+        ]);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
-        throw new UnsupportedOperation(sprintf('The %s is not able to do reverse geocoding.', __CLASS__));
+        throw new UnsupportedOperation('The GeoIP2 provider is not able to do reverse geocoding.');
     }
 
     /**
@@ -88,25 +88,24 @@ class GeoIP2 extends AbstractProvider implements Provider
      */
     public function getName()
     {
-        return 'maxmind_geoip2';
+        return 'geoip2';
     }
 
     /**
-     * @param  string                       $address
-     * @throws \Geocoder\Exception\NoResult
-     * @return City
+     * @param string $address
      */
     private function executeQuery($address)
     {
         $uri = sprintf('file://geoip?%s', $address);
 
         try {
-            $result = $this->getAdapter()->setLocale($this->locale)->getContent($uri);
+            $result = $this->adapter
+                ->setLocale($this->locale)
+                ->getContent($uri);
         } catch (AddressNotFoundException $e) {
-            throw new NoResult(sprintf('No results found for IP address %s', $address));
+            throw new NoResult(sprintf('No results found for IP address "%s".', $address));
         }
 
         return $result;
     }
-
 }

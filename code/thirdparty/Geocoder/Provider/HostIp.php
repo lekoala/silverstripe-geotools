@@ -16,7 +16,7 @@ use Geocoder\Exception\UnsupportedOperation;
 /**
  * @author William Durand <william.durand1@gmail.com>
  */
-class HostIp extends AbstractProvider implements Provider
+class HostIp extends AbstractHttpProvider implements Provider
 {
     /**
      * @var string
@@ -26,19 +26,19 @@ class HostIp extends AbstractProvider implements Provider
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
         if (!filter_var($address, FILTER_VALIDATE_IP)) {
-            throw new UnsupportedOperation('The HostIpProvider does not support Street addresses.');
+            throw new UnsupportedOperation('The HostIp provider does not support Street addresses.');
         }
 
         // This API does not support IPv6
         if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            throw new UnsupportedOperation('The HostIpProvider does not support IPv6 addresses.');
+            throw new UnsupportedOperation('The HostIp provider does not support IPv6 addresses.');
         }
 
         if ('127.0.0.1' === $address) {
-            return array($this->getLocalhostDefaults());
+            return $this->returnResults([ $this->getLocalhostDefaults() ]);
         }
 
         $query = sprintf(self::ENDPOINT_URL, $address);
@@ -49,9 +49,9 @@ class HostIp extends AbstractProvider implements Provider
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
-        throw new UnsupportedOperation('The HostIpProvider is not able to do reverse geocoding.');
+        throw new UnsupportedOperation('The HostIp provider is not able to do reverse geocoding.');
     }
 
     /**
@@ -65,24 +65,26 @@ class HostIp extends AbstractProvider implements Provider
     /**
      * @param string $query
      *
-     * @return array
+     * @return \Geocoder\Model\AddressCollection
      */
     private function executeQuery($query)
     {
-        $content = $this->getAdapter()->getContent($query);
+        $content = (string) $this->getAdapter()->get($query)->getBody();
 
         $data = json_decode($content, true);
 
         if (!$data) {
-            throw new NoResult(sprintf('Could not execute query %s', $query));
+            throw new NoResult(sprintf('Could not execute query "%s".', $query));
         }
 
-        return array(array_merge($this->getDefaults(), array(
-            'latitude'    => $data['lat'],
-            'longitude'   => $data['lng'],
-            'locality'    => $data['city'],
-            'country'     => $data['country_name'],
-            'countryCode' => $data['country_code'],
-        )));
+        return $this->returnResults([
+            array_merge($this->getDefaults(), [
+                'latitude'    => $data['lat'],
+                'longitude'   => $data['lng'],
+                'locality'    => $data['city'],
+                'country'     => $data['country_name'],
+                'countryCode' => $data['country_code'],
+            ])
+        ]);
     }
 }

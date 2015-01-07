@@ -10,9 +10,9 @@
 
 namespace Geocoder\Provider;
 
-use Geocoder\Exception\NoResult;
-use Geocoder\Exception\InvalidArgument;
 use Geocoder\Exception\FunctionNotFound;
+use Geocoder\Exception\InvalidArgument;
+use Geocoder\Exception\NoResult;
 use Geocoder\Exception\UnsupportedOperation;
 
 class MaxMindBinary extends AbstractProvider implements Provider
@@ -39,14 +39,14 @@ class MaxMindBinary extends AbstractProvider implements Provider
         if (false === function_exists('geoip_open')) {
             throw new FunctionNotFound(
                 'geoip_open',
-                'The MaxMindBinaryProvider requires maxmind\'s lib to be installed and loaded. Have you included geoip.inc file?'
+                'The MaxMindBinary requires maxmind\'s lib to be installed and loaded. Have you included geoip.inc file?'
             );
         }
 
         if (false === function_exists('GeoIP_record_by_addr')) {
             throw new FunctionNotFound(
                 'GeoIP_record_by_addr',
-                'The MaxMindBinaryProvider requires maxmind\'s lib to be installed and loaded. Have you included geoipcity.inc file?'
+                'The MaxMindBinary requires maxmind\'s lib to be installed and loaded. Have you included geoipcity.inc file?'
             );
         }
 
@@ -60,15 +60,22 @@ class MaxMindBinary extends AbstractProvider implements Provider
 
         $this->datFile  = $datFile;
         $this->openFlag = null === $openFlag ? GEOIP_STANDARD : $openFlag;
+
+        parent::__construct();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
         if (false === filter_var($address, FILTER_VALIDATE_IP)) {
-            throw new UnsupportedOperation('The MaxMindBinaryProvider does not support street addresses.');
+            throw new UnsupportedOperation('The MaxMindBinary provider does not support street addresses.');
+        }
+
+        // This API does not support IPv6
+        if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            throw new UnsupportedOperation('The MaxMindBinary provider does not support IPv6 addresses.');
         }
 
         $geoIp       = geoip_open($this->datFile, $this->openFlag);
@@ -76,26 +83,28 @@ class MaxMindBinary extends AbstractProvider implements Provider
 
         geoip_close($geoIp);
 
-        if (false === $geoIpRecord instanceof \geoiprecord) {
+        if (false === $geoIpRecord instanceof \GeoIpRecord) {
             throw new NoResult(sprintf('No results found for IP address %s', $address));
         }
 
-        return array($this->fixEncoding(array_merge($this->getDefaults(), array(
-            'countryCode' => $geoIpRecord->country_code,
-            'country'     => $geoIpRecord->country_name,
-            'region'      => $geoIpRecord->region,
-            'locality'    => $geoIpRecord->city,
-            'latitude'    => $geoIpRecord->latitude,
-            'longitude'   => $geoIpRecord->longitude,
-        ))));
+        return $this->returnResults([
+            $this->fixEncoding(array_merge($this->getDefaults(), [
+                'countryCode' => $geoIpRecord->country_code,
+                'country'     => $geoIpRecord->country_name,
+                'region'      => $geoIpRecord->region,
+                'locality'    => $geoIpRecord->city,
+                'latitude'    => $geoIpRecord->latitude,
+                'longitude'   => $geoIpRecord->longitude,
+            ]))
+        ]);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
-        throw new UnsupportedOperation('The MaxMindBinaryProvider is not able to do reverse geocoding.');
+        throw new UnsupportedOperation('The MaxMindBinary is not able to do reverse geocoding.');
     }
 
     /**

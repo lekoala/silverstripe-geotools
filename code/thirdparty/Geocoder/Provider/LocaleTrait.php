@@ -10,8 +10,16 @@
 
 namespace Geocoder\Provider;
 
-interface LocaleAwareProvider extends Provider
+/**
+ * @author Premi Giorgio <giosh94mhz@gmail.com>
+ */
+trait LocaleTrait
 {
+    /**
+     * @var string|null
+     */
+    private $locale;
+
     /**
      * Return the locale to be used in locale aware requests.
      *
@@ -19,7 +27,10 @@ interface LocaleAwareProvider extends Provider
      *
      * @return string|null
      */
-    public function getLocale();
+    public function getLocale()
+    {
+        return $this->locale;
+    }
 
     /**
      * Sets the locale to be used.
@@ -28,5 +39,10 @@ interface LocaleAwareProvider extends Provider
      *
      * @return LocaleAwareProvider
      */
-    public function setLocale($locale);
+    public function setLocale($locale)
+    {
+        $this->locale = $locale ?: null;
+
+        return $this;
+    }
 }

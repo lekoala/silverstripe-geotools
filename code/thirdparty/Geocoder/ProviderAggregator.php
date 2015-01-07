@@ -12,18 +12,12 @@ namespace Geocoder;
 
 use Geocoder\Exception\ProviderNotRegistered;
 use Geocoder\Provider\Provider;
-use Geocoder\Model\AddressFactory;
 
 /**
  * @author William Durand <william.durand1@gmail.com>
  */
-class ProviderBasedGeocoder implements Geocoder
+class ProviderAggregator implements Geocoder
 {
-    /**
-     * @var integer
-     */
-    const MAX_RESULTS = 5;
-
     /**
      * @var Provider[]
      */
@@ -35,25 +29,16 @@ class ProviderBasedGeocoder implements Geocoder
     private $provider;
 
     /**
-     * @var AddressFactory
-     */
-    private $factory;
-
-    /**
      * @var integer
      */
-    private $maxResults;
+    private $limit;
 
     /**
-     * @param Provider $provider
-     * @param integer  $maxResults
+     * @param integer $limit
      */
-    public function __construct(Provider $provider = null, $maxResults = self::MAX_RESULTS)
+    public function __construct($limit = Provider::MAX_RESULTS)
     {
-        $this->provider = $provider;
-        $this->factory  = new AddressFactory();
-
-        $this->limit($maxResults);
+        $this->limit($limit);
     }
 
     /**
@@ -61,15 +46,16 @@ class ProviderBasedGeocoder implements Geocoder
      */
     public function geocode($value)
     {
+        $value = trim($value);
+
         if (empty($value)) {
             // let's save a request
             return [];
         }
 
-        $provider = $this->getProvider()->setMaxResults($this->getMaxResults());
-        $data     = $provider->getGeocodedData(trim($value));
-
-        return $this->returnResult($data);
+        return $this->getProvider()
+            ->limit($this->getLimit())
+            ->geocode($value);
     }
 
     /**
@@ -82,34 +68,49 @@ class ProviderBasedGeocoder implements Geocoder
             return [];
         }
 
-        $provider = $this->getProvider()->setMaxResults($this->getMaxResults());
-        $data     = $provider->getReversedData([ $latitude, $longitude ]);
-
-        return $this->returnResult($data);
+        return $this->getProvider()
+            ->limit($this->getLimit())
+            ->reverse($latitude, $longitude);
     }
 
     /**
-     * Registers a provider.
-     *
-     * @param Provider $provider
-     *
-     * @return ProviderBasedGeocoder
+     * {@inheritDoc}
      */
-    public function registerProvider(Provider $provider)
+    public function limit($limit)
     {
-        if (null !== $provider) {
-            $this->providers[$provider->getName()] = $provider;
-        }
+        $this->limit = $limit;
 
         return $this;
     }
 
     /**
-     * Convenient method to egister a set of providers.
+     * {@inheritDoc}
+     */
+    public function getLimit()
+    {
+        return $this->limit;
+    }
+
+    /**
+     * Registers a new provider to the aggregator.
+     *
+     * @param Provider $provider
+     *
+     * @return ProviderAggregator
+     */
+    public function registerProvider(Provider $provider)
+    {
+        $this->providers[$provider->getName()] = $provider;
+
+        return $this;
+    }
+
+    /**
+     * Registers a set of providers.
      *
      * @param Provider[] $providers
      *
-     * @return ProviderBasedGeocoder
+     * @return ProviderAggregator
      */
     public function registerProviders(array $providers = [])
     {
@@ -121,11 +122,11 @@ class ProviderBasedGeocoder implements Geocoder
     }
 
     /**
-     * Set the provider to use.
+     * Sets the default provider to use.
      *
-     * @param string $name A provider's name
+     * @param string $name
      *
-     * @return ProviderBasedGeocoder
+     * @return ProviderAggregator
      */
     public function using($name)
     {
@@ -139,7 +140,7 @@ class ProviderBasedGeocoder implements Geocoder
     }
 
     /**
-     * Return registered providers indexed by name.
+     * Returns all registered providers indexed by their name.
      *
      * @return Provider[]
      */
@@ -149,27 +150,7 @@ class ProviderBasedGeocoder implements Geocoder
     }
 
     /**
-     * @param integer $maxResults
-     *
-     * @return ProviderBasedGeocoder
-     */
-    public function limit($maxResults)
-    {
-        $this->maxResults = $maxResults;
-
-        return $this;
-    }
-
-    /**
-     * @return integer $maxResults
-     */
-    public function getMaxResults()
-    {
-        return $this->maxResults;
-    }
-
-    /**
-     * Return the provider to use.
+     * Returns the current provider in use.
      *
      * @return Provider
      */
@@ -184,15 +165,5 @@ class ProviderBasedGeocoder implements Geocoder
         }
 
         return $this->provider;
-    }
-
-    /**
-     * @param array $data An array of data.
-     *
-     * @return Address[]
-     */
-    protected function returnResult(array $data = [])
-    {
-        return $this->factory->createFromArray($data);
     }
 }

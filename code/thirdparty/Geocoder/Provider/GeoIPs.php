@@ -10,12 +10,12 @@
 
 namespace Geocoder\Provider;
 
+use Geocoder\Exception\InvalidArgument;
 use Geocoder\Exception\InvalidCredentials;
 use Geocoder\Exception\NoResult;
-use Geocoder\Exception\UnsupportedOperation;
-use Geocoder\Exception\InvalidArgument;
 use Geocoder\Exception\QuotaExceeded;
-use Geocoder\HttpAdapter\HttpAdapterInterface;
+use Geocoder\Exception\UnsupportedOperation;
+use Ivory\HttpAdapter\HttpAdapterInterface;
 
 /**
  * @author Andrea Cristaudo <andrea.cristaudo@gmail.com>
@@ -23,33 +23,39 @@ use Geocoder\HttpAdapter\HttpAdapterInterface;
  *
  * @link http://www.geoips.com/en/developer/api-guide
  */
-class GeoIPs extends AbstractProvider implements Provider
+class GeoIPs extends AbstractHttpProvider implements Provider
 {
     /**
      * @var string
      */
-    const GEOCODE_ENDPOINT_URL = 'http://api.geoips.com/ip/%s/key/%s/output/json/timezone/true/';
+    const GEOCODE_ENDPOINT_URL  = 'http://api.geoips.com/ip/%s/key/%s/output/json/timezone/true/';
 
     const CODE_SUCCESS          = '200_1'; // The following results has been returned.
+
     const CODE_NOT_FOUND        = '200_2'; // No result set has been returned.
+
     const CODE_BAD_KEY          = '400_1'; // Error in the URI - The API call should include a API key parameter.
+
     const CODE_BAD_IP           = '400_2'; // Error in the URI - The API call should include a valid IP address.
+
     const CODE_NOT_AUTHORIZED   = '403_1'; // The API key associated with your request was not recognized.
+
     const CODE_ACCOUNT_INACTIVE = '403_2'; // The API key has not been approved or has been disabled.
+
     const CODE_LIMIT_EXCEEDED   = '403_3'; // The service you have requested is over capacity.
 
     /**
      * @var string
      */
-    private $apiKey = null;
+    private $apiKey;
 
     /**
-     * @param HttpAdapterInterface $adapter An HTTP adapter.
-     * @param string               $apiKey  An API key.
+     * @param HttpAdapterInterface $adapter An HTTP adapter
+     * @param string               $apiKey  An API key
      */
     public function __construct(HttpAdapterInterface $adapter, $apiKey)
     {
-        parent::__construct($adapter, null);
+        parent::__construct($adapter);
 
         $this->apiKey = $apiKey;
     }
@@ -57,23 +63,22 @@ class GeoIPs extends AbstractProvider implements Provider
     /**
      * {@inheritDoc}
      */
-    public function getGeocodedData($address)
+    public function geocode($address)
     {
         if (null === $this->apiKey) {
-            throw new InvalidCredentials('No API Key provided.');
+            throw new InvalidCredentials('No API key provided.');
         }
 
         if (!filter_var($address, FILTER_VALIDATE_IP)) {
-            throw new UnsupportedOperation('The GeoIPsProvider does not support street addresses.');
+            throw new UnsupportedOperation('The GeoIPs provider does not support street addresses, only IPv4 addresses.');
         }
 
-        // This API does not support IPv6
         if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            throw new UnsupportedOperation('The GeoIPsProvider does not support IPv6 addresses.');
+            throw new UnsupportedOperation('The GeoIPs provider does not support IPv6 addresses, only IPv4 addresses.');
         }
 
         if ('127.0.0.1' === $address) {
-            return array($this->getLocalhostDefaults());
+            return $this->returnResults([ $this->getLocalhostDefaults() ]);
         }
 
         $query = sprintf(self::GEOCODE_ENDPOINT_URL, $address, $this->apiKey);
@@ -84,9 +89,9 @@ class GeoIPs extends AbstractProvider implements Provider
     /**
      * {@inheritDoc}
      */
-    public function getReversedData(array $coordinates)
+    public function reverse($latitude, $longitude)
     {
-        throw new UnsupportedOperation('The GeoIPsProvider is not able to do reverse geocoding.');
+        throw new UnsupportedOperation('The GeoIPs provider is not able to do reverse geocoding.');
     }
 
     /**
@@ -98,15 +103,14 @@ class GeoIPs extends AbstractProvider implements Provider
     }
 
     /**
-     * @param  string $query
-     * @return array
+     * @param string $query
      */
     private function executeQuery($query)
     {
-        $content = $this->getAdapter()->getContent($query);
+        $content = (string) $this->getAdapter()->get($query)->getBody();
 
-        if (null === $content || '' === $content) {
-            throw new NoResult(sprintf('Invalid response from GeoIPs server for query %s', $query));
+        if (empty($content)) {
+            throw new NoResult(sprintf('Invalid response from GeoIPs API for query "%s".', $query));
         }
 
         $json = json_decode($content, true);
@@ -136,7 +140,7 @@ class GeoIPs extends AbstractProvider implements Provider
         }
 
         if (!is_array($json) || empty($json) || empty($json['response']) || empty($json['response']['code'])) {
-            throw new NoResult(sprintf('Invalid response from GeoIPs server for query %s', $query));
+            throw new NoResult(sprintf('Invalid response from GeoIPs API for query "%s".', $query));
         }
 
         $response = $json['response'];
@@ -150,7 +154,7 @@ class GeoIPs extends AbstractProvider implements Provider
                 break;
             default:
                 throw new NoResult(sprintf(
-                    'GeoIPs returned unknown result code %s for query: %s',
+                    'The GeoIPs API returned unknown result code "%s" for query: "%s".',
                     $response['code'],
                     $query
                 ));
@@ -158,11 +162,11 @@ class GeoIPs extends AbstractProvider implements Provider
 
         // Make sure that we do have proper result array
         if (empty($response['location']) || !is_array($response['location'])) {
-            throw new NoResult(sprintf('Invalid response from GeoIPs server for query %s', $query));
+            throw new NoResult(sprintf('Invalid response from GeoIPs API for query "%s".', $query));
         }
 
-        $locations = [];
-        $location = $response['location'];
+        $locations   = [];
+        $location    = $response['location'];
         $locations[] = array_merge($this->getDefaults(), array(
             'country'     => '' === $location['country_name'] ? null : $location['country_name'],
             'countryCode' => '' === $location['country_code'] ? null : $location['country_code'],
@@ -175,6 +179,6 @@ class GeoIPs extends AbstractProvider implements Provider
             'timezone'    => '' === $location['timezone']     ? null : $location['timezone'],
         ));
 
-        return $locations;
+        return $this->returnResults($locations);
     }
 }
