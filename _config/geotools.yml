@@ -4,6 +4,9 @@ After:
   - 'framework/*'
   - 'cms/*'
 ---
+Member:
+  extensions:
+    - 'GeoMemberExtension'
 Geocoder:
   # or use whatver makes sense to you
   local_ip: '88.188.221.14'
