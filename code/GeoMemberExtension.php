@@ -3,7 +3,7 @@
 /**
  * GeoMemberExtension
  *
- * Field name follow closely the Geocoder/Model/Adddress class
+ * Field name follow closely the Geocoder\Model\Address class
  *
  * @author lekoala
  */
@@ -217,34 +217,79 @@ class GeoMemberExtension extends DataExtension
         $fields->addFieldsToTab('Root.Geo', $this->getGeoFields());
     }
 
-    public function getGeoFields()
+    /**
+     * @return \FieldList
+     */
+    public function getAddressFields()
     {
-        $fields = array(
+        Requirements::customCSS(<<<CSS
+.address-group { padding:0px ; }
+.address-group .fieldgroup-field { padding-top:0px; }
+.address-group .fieldgroup-field .fieldholder-small { padding-bottom:0px;}
+.field .text.long-field { width: 300px }
+CSS
         );
 
+        $fields = new CompositeField;
 
-        $fields[] = new TextField('StreetName',
+        $streetname = new TextField('StreetName',
             _t('GeoMemberExtension.STREETNAME', 'Street Name'),
             $this->owner->StreetName);
+        $streetname->setAttribute('placeholder',
+            _t('GeoMemberExtension.STREETNAME', 'Street Name'));
+        $streetname->setTitle('');
+        $streetname->addExtraClass('long-field');
 
-        $fields[] = new TextField('StreetNumber',
+        $streetnumber = new TextField('StreetNumber',
             _t('GeoMemberExtension.STREETNUMBER', 'Street Number'),
             $this->owner->StreetNumber);
+        $streetnumber->setAttribute('placeholder',
+            _t('GeoMemberExtension.STREETNUMBER', 'Street Number'));
+        $streetnumber->setTitle('');
+
+        $fields->push($street = new FieldGroup($streetname, $streetnumber));
+        $street->setTitle(_t('GeoMemberExtension.STREET', 'Street'));
+        $street->addExtraClass('address-group');
 
         $postcode = new TextField('PostalCode',
             _t('GeoMemberExtension.POSTCODE', 'Postal Code'),
             $this->owner->PostalCode);
+        $postcode->setAttribute('placeholder',
+            _t('GeoMemberExtension.POSTCODE', 'Postal Code'));
+        $postcode->setTitle('');
 
-        $fields[] = $postcode;
-
-        $fields[] = new TextField('Locality',
+        $locality = new TextField('Locality',
             _t('GeoMemberExtension.CITY', 'City'), $this->owner->Locality);
+        $locality->setAttribute('placeholder',
+            _t('GeoMemberExtension.CITY', 'City'));
+        $locality->setTitle('');
+        $locality->addExtraClass('long-field');
 
-        $label    = _t('GeoMemberExtension.COUNTRY', 'Country');
-        $fields[] = new CountryDropdownField('CountryCode',
-            _t('GeoMemberExtension.COUNTRY', 'Country'), self::getCountryList());
+        $fields->push($localitygroup = new FieldGroup($postcode, $locality));
+        $localitygroup->setTitle(_t('GeoMemberExtension.LOCALITY', 'Locality'));
+        $localitygroup->addExtraClass('address-group');
 
-        $fields[] = $coords   = new FieldGroup(new TextField('Latitude',
+        $label = _t('GeoMemberExtension.COUNTRY', 'Country');
+        $fields->push(new CountryDropdownField('CountryCode',
+            _t('GeoMemberExtension.COUNTRY', 'Country'), self::getCountryList()));
+
+        return $fields;
+    }
+
+    /**
+     * @return \FieldList
+     */
+    public function getGeoFields()
+    {
+        $fields = new FieldList;
+
+        $fields->push(new HeaderField('AddressHeader',
+            _t('GeoMemberExtension.ADDRESSHEADER', 'Address')));
+        $fields->push($this->getAddressFields(), 'Address');
+
+        $fields->push(new HeaderField('GeoHeader',
+            _t('GeoMemberExtension.GEOHEADER', 'Geo data')));
+        $coords = new FieldGroup(new TextField('Latitude',
             _t('GeoMemberExtension.LATITUDE', 'Latitude'),
             $this->owner->Latitude)
             ,
@@ -254,16 +299,18 @@ class GeoMemberExtension extends DataExtension
 
         $coords->setTitle(_t('GeoMemberExtension.COORDS', 'Coordinates'));
 
-        $fields[] = new CheckboxField('GeolocateOnLocation',
+        $fields->push($coords);
+
+        $fields->push(new CheckboxField('GeolocateOnLocation',
             _t('GeoMemberExtension.GEOLOCATEONLOCATION',
-                'Only show  location instead of full address'));
+                'Only show location instead of full address')));
 
-        $tz       = timezone_identifiers_list();
-        $fields[] = new DropdownField('Timezone',
+        $tz = timezone_identifiers_list();
+        $fields->push(new DropdownField('Timezone',
             _t('GeoMemberExtension.TIMEZONE', 'Timezone'),
-            array_combine($tz, $tz));
+            array_combine($tz, $tz)));
 
-        return new FieldList($fields);
+        return $fields;
     }
 
     /**
@@ -291,8 +338,10 @@ class GeoMemberExtension extends DataExtension
      */
     public function isAddressChanged($level = 1)
     {
-        $fields  = array('StreetName', 'StreetNumber', 'Locality', 'PostalCode',
-            'CountryCode', 'GeolocateOnLocation');
+        $fields = array('StreetName', 'StreetNumber', 'Locality', 'PostalCode',
+            'CountryCode', 'GeolocateOnLocation ')
+
+        ;
         $changed = $this->owner->getChangedFields(false, $level);
 
         foreach ($fields as $field) {
@@ -325,7 +374,7 @@ class GeoMemberExtension extends DataExtension
      */
     public function ReverseGeocode()
     {
-        if(!$this->owner->Latitude) {
+        if (!$this->owner->Latitude) {
             return false;
         }
         return Geocoder::getGeocoder()->reverse($this->owner->Latitude,
