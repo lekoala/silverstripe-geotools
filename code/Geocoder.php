@@ -104,9 +104,6 @@ class Geocoder extends Object
      */
     public static function getIpGeocoder($type = 'city')
     {
-        if (!in_array($type, array('city', 'country'))) {
-            throw new InvalidArgumentException('Type must either be city or country');
-        }
         if (!isset(self::$ipGeocoder[$type])) {
             $reader = new \GeoIp2\Database\Reader(Director::baseFolder().'/'.self::config()->geoip_data[$type]);
 
@@ -189,11 +186,10 @@ class Geocoder extends Object
             }
         }
 
-        // Could be updated to be configurable to use the webservice instead
         try {
             $result = $geocoder->geocode($ip);
-            if (count($result) == 1) {
-                $result = $result[0];
+            if ($result instanceof \Geocoder\Model\AddressCollection) {
+                $result = $result->first();
             }
             if ($result && self::config()->cache_enabled) {
                 $cache->save(serialize($result), $cache_key, array('ip'), null);

@@ -9,7 +9,7 @@ Member:
     - 'GeoMemberExtension'
 Geocoder:
   # or use whatver makes sense to you
-  local_ip: '88.188.221.14'
+  local_ip: '68.145.37.34'
   default_format: '%S %n, %z %L'
   cache_enabled: true
   # https://github.com/egeloen/ivory-http-adapter

@@ -218,19 +218,31 @@ class GeoMemberExtension extends DataExtension
     }
 
     /**
+     * @param boolean $geoDefaults
      * @return \FieldList
      */
-    public function getAddressFields()
+    public function getAddressFields($geoDefaults = true)
     {
-        Requirements::customCSS(<<<CSS
-.address-group { padding:0px ; }
-.address-group .fieldgroup-field { padding-top:0px; }
-.address-group .fieldgroup-field .fieldholder-small { padding-bottom:0px;}
-.field .text.long-field { width: 300px }
-CSS
-        );
-
         $fields = new CompositeField;
+
+        $localityValue   = $this->owner->Locality;
+        $countryCode     = $this->owner->CountryCode;
+        $postalCodeValue = $this->owner->PostalCode;
+
+        if ((!$localityValue || !$countryCode || !$postalCodeValue) && $geoDefaults) {
+            $addressFromIp = Geocoder::geocodeIp(null, 'city', true);
+            if ($addressFromIp) {
+                if (!$localityValue) {
+                    $localityValue = $addressFromIp->getLocality();
+                }
+                if (!$countryCode) {
+                    $countryCode = $addressFromIp->getCountryCode();
+                }
+                if (!$postalCodeValue) {
+                    $postalCodeValue = $addressFromIp->getPostalCode();
+                }
+            }
+        }
 
         $streetname = new TextField('StreetName',
             _t('GeoMemberExtension.STREETNAME', 'Street Name'),
@@ -238,7 +250,7 @@ CSS
         $streetname->setAttribute('placeholder',
             _t('GeoMemberExtension.STREETNAME', 'Street Name'));
         $streetname->setTitle('');
-        $streetname->addExtraClass('long-field');
+        $streetname->setAttribute('style', 'width:300px');
 
         $streetnumber = new TextField('StreetNumber',
             _t('GeoMemberExtension.STREETNUMBER', 'Street Number'),
@@ -249,29 +261,29 @@ CSS
 
         $fields->push($street = new FieldGroup($streetname, $streetnumber));
         $street->setTitle(_t('GeoMemberExtension.STREET', 'Street'));
-        $street->addExtraClass('address-group');
+        $street->setFieldHolderTemplate('AddressFieldHolder');
 
         $postcode = new TextField('PostalCode',
-            _t('GeoMemberExtension.POSTCODE', 'Postal Code'),
-            $this->owner->PostalCode);
+            _t('GeoMemberExtension.POSTCODE', 'Postal Code'), $postalCodeValue);
         $postcode->setAttribute('placeholder',
             _t('GeoMemberExtension.POSTCODE', 'Postal Code'));
         $postcode->setTitle('');
 
         $locality = new TextField('Locality',
-            _t('GeoMemberExtension.CITY', 'City'), $this->owner->Locality);
+            _t('GeoMemberExtension.CITY', 'City'), $localityValue);
         $locality->setAttribute('placeholder',
             _t('GeoMemberExtension.CITY', 'City'));
         $locality->setTitle('');
-        $locality->addExtraClass('long-field');
+        $locality->setAttribute('style', 'width:300px');
 
         $fields->push($localitygroup = new FieldGroup($postcode, $locality));
         $localitygroup->setTitle(_t('GeoMemberExtension.LOCALITY', 'Locality'));
-        $localitygroup->addExtraClass('address-group');
+        $localitygroup->setFieldHolderTemplate('AddressFieldHolder');
 
         $label = _t('GeoMemberExtension.COUNTRY', 'Country');
         $fields->push(new CountryDropdownField('CountryCode',
-            _t('GeoMemberExtension.COUNTRY', 'Country'), self::getCountryList()));
+            _t('GeoMemberExtension.COUNTRY', 'Country'), self::getCountryList(),
+            $countryCode));
 
         return $fields;
     }
@@ -289,13 +301,23 @@ CSS
 
         $fields->push(new HeaderField('GeoHeader',
             _t('GeoMemberExtension.GEOHEADER', 'Geo data')));
-        $coords = new FieldGroup(new TextField('Latitude',
+
+        $latitude = new TextField('Latitude',
             _t('GeoMemberExtension.LATITUDE', 'Latitude'),
-            $this->owner->Latitude)
-            ,
-            new TextField('Longitude',
+            $this->owner->Latitude ? $this->owner->Latitude : null);
+        $latitude->setAttribute('placeholder',
+            _t('GeoMemberExtension.LATITUDE', 'Latitude'));
+        $latitude->setTitle('');
+
+        $longitude = new TextField('Longitude',
             _t('GeoMemberExtension.LONGITUDE', 'Longitude'),
-            $this->owner->Longitude));
+            $this->owner->Longitude ? $this->owner->Longitude : null);
+        $longitude->setAttribute('placeholder',
+            _t('GeoMemberExtension.LONGITUDE', 'Longitude'));
+        $longitude->setTitle('');
+
+        $coords = new FieldGroup($latitude, $longitude);
+        $coords->setFieldHolderTemplate('AddressFieldHolder');
 
         $coords->setTitle(_t('GeoMemberExtension.COORDS', 'Coordinates'));
 
@@ -305,10 +327,14 @@ CSS
             _t('GeoMemberExtension.GEOLOCATEONLOCATION',
                 'Only show location instead of full address')));
 
-        $tz = timezone_identifiers_list();
+        $tz       = timezone_identifiers_list();
+        $timezone = $this->owner->Timezone;
+        if (!$timezone) {
+            $timezone = date_default_timezone_get();
+        }
         $fields->push(new DropdownField('Timezone',
             _t('GeoMemberExtension.TIMEZONE', 'Timezone'),
-            array_combine($tz, $tz)));
+            array_combine($tz, $tz), $timezone));
 
         return $fields;
     }
@@ -377,13 +403,17 @@ CSS
         if (!$this->owner->Latitude) {
             return false;
         }
-        return Geocoder::getGeocoder()->reverse($this->owner->Latitude,
-                $this->owner->Longitude);
+        $results = Geocoder::getGeocoder()->reverse($this->owner->Latitude,
+            $this->owner->Longitude);
+        if ($results->count()) {
+            return $results->first();
+        }
+        return false;
     }
 
     /**
      * Geocode the current full address
-     * @return bool
+     * @return \Geocoder\Model\Address
      */
     public function Geocode()
     {
@@ -391,14 +421,15 @@ CSS
             return false;
         }
         if ($this->owner->GeolocateOnLocation) {
-            $coords = Geocoder::getGeocoder()->geocode($this->getLocation());
+            $collection = Geocoder::getGeocoder()->geocode($this->getLocation());
         } else {
-            $coords = Geocoder::getGeocoder()->geocode($this->getFormattedAddress());
+            $collection = Geocoder::getGeocoder()->geocode($this->getFormattedAddress());
         }
-        if ($coords) {
-            $this->owner->Latitude  = $coords->getLatitude();
-            $this->owner->Longitude = $coords->getLongitude();
-            return true;
+        if ($collection->count()) {
+            $address                = $collection->first();
+            $this->owner->Latitude  = $address->getLatitude();
+            $this->owner->Longitude = $address->getLongitude();
+            return $address;
         }
         return false;
     }
