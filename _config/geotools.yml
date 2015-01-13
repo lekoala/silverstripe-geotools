@@ -12,9 +12,12 @@ Geocoder:
   local_ip: '88.188.221.14'
   default_format: '%S %n, %z %L'
   cache_enabled: true
-  # look into code/thirdarty/Geocoder/HttpAdapter
-  adapter: 'CurlHttpAdapter'
-  adapter_options : [3,3]
+  # https://github.com/egeloen/ivory-http-adapter
+  adapter: '\Ivory\HttpAdapter\CurlHttpAdapter'
+  # https://github.com/egeloen/ivory-http-adapter/blob/master/doc/configuration.md
+  adapter_options :
+    KeepAlive: true
+    Timeout: 5
   # look into code/thirdarty/Geocoder/Provider
   providers:
     OpenStreetMap: []

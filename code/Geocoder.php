@@ -1,5 +1,4 @@
 <?php
-require_once 'thirdparty/get_in.php';
 
 /**
  * Geocoder
@@ -9,9 +8,14 @@ require_once 'thirdparty/get_in.php';
 class Geocoder extends Object
 {
     /**
-     * @var \Geocoder\ProviderBasedGeocoder
+     * @var \Geocoder\ProviderAggregator
      */
     protected static $addressGeocoder;
+
+    /**
+     * @var array
+     */
+    protected static $ipGeocoder = array();
 
     /**
      * @var Zend_Cache_Frontend 
@@ -41,34 +45,37 @@ class Geocoder extends Object
 
     /**
      *
-     * @param \Geocoder\Geocoder $geocoder
+     * @param \Geocoder\ProviderAggregator $geocoder
      */
-    public static function setGeocoder(\Geocoder\Geocoder $geocoder)
+    public static function setGeocoder(\Geocoder\ProviderAggregator $geocoder)
     {
         self::$addressGeocoder = $geocoder;
     }
 
     /**
-     * @return \Geocoder\Geocoder
+     * @return \Geocoder\ProviderAggregator
      * @throws RuntimeException
      */
     public static function getGeocoder()
     {
         if (!self::$addressGeocoder) {
-            $adapter = '\\Geocoder\\HttpAdapter\\'.self::config()->adapter;
+            $adapter = self::config()->adapter;
             if (!class_exists($adapter)) {
                 throw new RuntimeException("Adapter class $adapter is not defined");
             }
             $adaperOptions = self::config()->adapter_options;
+            $configuration = new \Ivory\HttpAdapter\Configuration();
+            foreach ($adaperOptions as $adapterParam => $adapterValue) {
+                $method = 'set'.ucfirst($adapterParam);
+                $configuration->$method($adapterValue);
+            }
 
-            $geocoder = new \Geocoder\ProviderBasedGeocoder();
+            $geocoder = new \Geocoder\ProviderAggregator();
 
-            $reflectionClass = new ReflectionClass($adapter);
-            $adapterInstance = $reflectionClass->newInstanceArgs($adaperOptions);
+            $adapterInstance = new $adapter($configuration);
 
             $providers = self::config()->providers;
 
-            $chain = new \Geocoder\Provider\Chain();
             foreach ($providers as $provider => $params) {
                 if (isset($params['locale'])) {
                     $params['locale'] = i18n::get_locale();
@@ -82,13 +89,35 @@ class Geocoder extends Object
 
                 $reflectionClass  = new ReflectionClass($class);
                 $providerInstance = $reflectionClass->newInstanceArgs($params);
-                $chain->add($providerInstance);
+                $geocoder->registerProvider($providerInstance);
             }
 
-            $geocoder->registerProvider($chain);
             self::$addressGeocoder = $geocoder;
         }
         return self::$addressGeocoder;
+    }
+
+    /**
+     * @param string $type
+     * @return \Geocoder\Provider\GeoIP2
+     * @throws InvalidArgumentException
+     */
+    public static function getIpGeocoder($type = 'city')
+    {
+        if (!in_array($type, array('city', 'country'))) {
+            throw new InvalidArgumentException('Type must either be city or country');
+        }
+        if (!isset(self::$ipGeocoder[$type])) {
+            $reader = new \GeoIp2\Database\Reader(Director::baseFolder().'/'.self::config()->geoip_data[$type]);
+
+            $adapter  = new \Geocoder\Adapter\GeoIP2Adapter($reader, $type);
+            $geocoder = new \Geocoder\Provider\GeoIP2($adapter);
+
+            // Save
+            self::$ipGeocoder[$type] = $geocoder;
+        }
+
+        return self::$ipGeocoder[$type];
     }
 
     /**
@@ -146,9 +175,7 @@ class Geocoder extends Object
             $ip = self::getRealIp();
         }
 
-        if (!in_array($type, array('city', 'country'))) {
-            throw new InvalidArgumentException('Type must either be city or country');
-        }
+        $geocoder = self::getIpGeocoder($type);
 
         // Cache support
         if (self::config()->cache_enabled) {
@@ -162,22 +189,14 @@ class Geocoder extends Object
             }
         }
 
-
         // Could be updated to be configurable to use the webservice instead
         try {
-            $reader = new \GeoIp2\Database\Reader(Director::baseFolder().'/'.self::config()->geoip_data[$type]);
-
-            $adapter  = new \Geocoder\HttpAdapter\GeoIP2Adapter($reader, $type);
-            $provider = new \Geocoder\Provider\GeoIP2($adapter);
-            $geocoder = new \Geocoder\ProviderBasedGeocoder($provider);
-
             $result = $geocoder->geocode($ip);
             if (count($result) == 1) {
                 $result = $result[0];
             }
             if ($result && self::config()->cache_enabled) {
-                $cache->save(serialize($result), $cache_key, array('address'),
-                    null);
+                $cache->save(serialize($result), $cache_key, array('ip'), null);
             }
             return $result;
         } catch (Exception $e) {
@@ -263,12 +282,12 @@ class Geocoder extends Object
                     null);
             }
             return $result;
-        } catch (\Geocoder\Exception\ChainNoResultException $e) {
-            SS_Log::log($e->getMessage(), SS_Log::DEBUG);
-            self::$lastException = $e;
-            return false;
         } catch (Exception $e) {
-            SS_Log::log($e->getMessage(), SS_Log::WARN);
+            $level = SS_Log::WARN;
+            if ($e instanceof \Geocoder\Exception\NoResult) {
+                $level = SS_Log::DEBUG;
+            }
+            SS_Log::log($e->getMessage(), $level);
             self::$lastException = $e;
             return false;
         }
