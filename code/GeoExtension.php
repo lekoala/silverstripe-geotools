@@ -398,6 +398,9 @@ class GeoExtension extends DataExtension
         if ($this->shouldBeGeolocalized() || $this->isAddressChanged()) {
             $this->Geocode();
         }
+        if(!$this->owner->Timezone) {
+            $this->owner->Timezone = date_default_timezone_get();
+        }
     }
 
     /**
