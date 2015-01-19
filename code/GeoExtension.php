@@ -1,13 +1,13 @@
 <?php
 
 /**
- * GeoMemberExtension
+ * GeoExtension
  *
  * Field name follow closely the Geocoder\Model\Address class
  *
  * @author lekoala
  */
-class GeoMemberExtension extends DataExtension
+class GeoExtension extends DataExtension
 {
     private static $db = array(
         'Latitude' => 'Float(10,6)',
@@ -244,20 +244,24 @@ class GeoMemberExtension extends DataExtension
             }
         }
 
+        $longWidth = 300;
+        $shortWidth = 80;
+
         $streetname = new TextField('StreetName',
             _t('GeoMemberExtension.STREETNAME', 'Street Name'),
             $this->owner->StreetName);
         $streetname->setAttribute('placeholder',
             _t('GeoMemberExtension.STREETNAME', 'Street Name'));
         $streetname->setTitle('');
-        $streetname->setAttribute('style', 'width:300px');
+        $streetname->setAttribute('style', 'width:'.$longWidth.'px');
 
         $streetnumber = new TextField('StreetNumber',
             _t('GeoMemberExtension.STREETNUMBER', 'Street Number'),
             $this->owner->StreetNumber);
         $streetnumber->setAttribute('placeholder',
-            _t('GeoMemberExtension.STREETNUMBER', 'Street Number'));
+            _t('GeoMemberExtension.STREETNUMBERPLACEHOLDER', 'N°'));
         $streetnumber->setTitle('');
+        $streetnumber->setAttribute('style', 'width:'.$shortWidth.'px');
 
         $fields->push($street = new FieldGroup($streetname, $streetnumber));
         $street->setTitle(_t('GeoMemberExtension.STREET', 'Street'));
@@ -266,15 +270,16 @@ class GeoMemberExtension extends DataExtension
         $postcode = new TextField('PostalCode',
             _t('GeoMemberExtension.POSTCODE', 'Postal Code'), $postalCodeValue);
         $postcode->setAttribute('placeholder',
-            _t('GeoMemberExtension.POSTCODE', 'Postal Code'));
+            _t('GeoMemberExtension.POSTCODEPLACEHOLDER', 'Postcode'));
         $postcode->setTitle('');
+        $postcode->setAttribute('style', 'width:'.$shortWidth.'px');
 
         $locality = new TextField('Locality',
             _t('GeoMemberExtension.CITY', 'City'), $localityValue);
         $locality->setAttribute('placeholder',
             _t('GeoMemberExtension.CITY', 'City'));
         $locality->setTitle('');
-        $locality->setAttribute('style', 'width:300px');
+        $locality->setAttribute('style', 'width:'.$longWidth.'px');
 
         $fields->push($localitygroup = new FieldGroup($postcode, $locality));
         $localitygroup->setTitle(_t('GeoMemberExtension.LOCALITY', 'Locality'));

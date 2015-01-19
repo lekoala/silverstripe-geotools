@@ -6,7 +6,7 @@ After:
 ---
 Member:
   extensions:
-    - 'GeoMemberExtension'
+    - 'GeoExtension'
 Geocoder:
   # or use whatver makes sense to you
   local_ip: '68.145.37.34'
