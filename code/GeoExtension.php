@@ -9,7 +9,7 @@
  */
 class GeoExtension extends DataExtension
 {
-    private static $db = array(
+    private static $db                  = array(
         'Latitude' => 'Float(10,6)',
         'Longitude' => 'Float(10,6)',
         'StreetNumber' => 'Varchar(255)',
@@ -26,19 +26,20 @@ class GeoExtension extends DataExtension
         'Timezone' => 'Varchar',
         'GeolocateOnLocation' => 'Boolean'
     );
+    public static $disable_auto_geocode = false;
 
     /**
      * Get a list of countries
      * 
-     * @param string $lang
+     * @param string $locale
      * @return array
      */
-    public static function getCountryList($lang = null)
+    public static function getCountryList($locale = null)
     {
-        if (!$lang) {
-            $lang = i18n::get_locale();
+        if (!$locale) {
+            $locale = i18n::get_locale();
         }
-        $countries = Zend_Locale::getTranslationList('territory', $lang, 2);
+        $countries = Zend_Locale::getTranslationList('territory', $locale, 2);
         asort($countries, SORT_LOCALE_STRING);
         unset($countries['SU'], $countries['ZZ'], $countries['VD'],
             $countries['DD']);
@@ -285,7 +286,7 @@ class GeoExtension extends DataExtension
         $localitygroup->setTitle(_t('GeoMemberExtension.LOCALITY', 'Locality'));
         $localitygroup->setFieldHolderTemplate('AddressFieldHolder');
 
-        $label = _t('GeoMemberExtension.COUNTRY', 'Country');
+        $label     = _t('GeoMemberExtension.COUNTRY', 'Country');
         $fields->push($countrydd = new CountryDropdownField('CountryCode',
             _t('GeoMemberExtension.COUNTRY', 'Country'), self::getCountryList(),
             $countryCode));
@@ -342,7 +343,7 @@ class GeoExtension extends DataExtension
             _t('GeoMemberExtension.TIMEZONE', 'Timezone'),
             array_combine($tz, $tz), $timezone));
         $tzdd->setEmptyString('');
-        
+
         return $fields;
     }
 
@@ -397,11 +398,16 @@ class GeoExtension extends DataExtension
     public function onBeforeWrite()
     {
         parent::onBeforeWrite();
-        if ($this->shouldBeGeolocalized() || $this->isAddressChanged()) {
-            $this->Geocode();
-        }
         if (!$this->owner->Timezone) {
             $this->owner->Timezone = date_default_timezone_get();
+        }
+
+        // Auto geocoding
+        if (self::$disable_auto_geocode) {
+            return false;
+        }
+        if ($this->shouldBeGeolocalized() || $this->isAddressChanged()) {
+            $this->Geocode();
         }
     }
 
