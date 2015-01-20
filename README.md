@@ -15,7 +15,7 @@ Reverse geocode and address formatting is also supported.
 
 Options for providers and adapters must be provided as an array in the right order.
 The locale must be defined with a placeholder string "locale" that will be replaced
-by 18n::get_locale().
+by i18n::get_locale().
 
 For example:
     
@@ -43,6 +43,19 @@ To build a map, Leaflet is here for you! And this module provides some ready
 to use helpers to easily integrate maps in your pages
 
 Providers demo: http://leaflet-extras.github.io/leaflet-providers/preview/
+
+Some sample code in your controller:
+
+	public function LeafletMap()
+    {
+        $map = new LeafletMap();
+        $map->setID('contact-map');
+        $map->setLatitude($this->Latitude);
+        $map->setLongitude($this->Longitude);
+        $map->setTileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png');
+        $map->setContent($this->MapContent);
+        return $map;
+    }
 
 Compatibility
 ==================
