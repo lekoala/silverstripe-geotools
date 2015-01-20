@@ -244,7 +244,7 @@ class GeoExtension extends DataExtension
             }
         }
 
-        $longWidth = 300;
+        $longWidth  = 300;
         $shortWidth = 80;
 
         $streetname = new TextField('StreetName',
@@ -398,7 +398,7 @@ class GeoExtension extends DataExtension
         if ($this->shouldBeGeolocalized() || $this->isAddressChanged()) {
             $this->Geocode();
         }
-        if(!$this->owner->Timezone) {
+        if (!$this->owner->Timezone) {
             $this->owner->Timezone = date_default_timezone_get();
         }
     }
@@ -411,10 +411,14 @@ class GeoExtension extends DataExtension
         if (!$this->owner->Latitude) {
             return false;
         }
-        $results = Geocoder::getGeocoder()->reverse($this->owner->Latitude,
-            $this->owner->Longitude);
-        if ($results->count()) {
-            return $results->first();
+        try {
+            $results = Geocoder::getGeocoder()->reverse($this->owner->Latitude,
+                $this->owner->Longitude);
+            if ($results->count()) {
+                return $results->first();
+            }
+        } catch (\Geocoder\Exception\NoResult $ex) {
+            SS_Log::log($ex->getMessage(), SS_Log::DEBUG);
         }
         return false;
     }
@@ -428,16 +432,20 @@ class GeoExtension extends DataExtension
         if (!$this->canBeGeolocalized()) {
             return false;
         }
-        if ($this->owner->GeolocateOnLocation) {
-            $collection = Geocoder::getGeocoder()->geocode($this->getLocation());
-        } else {
-            $collection = Geocoder::getGeocoder()->geocode($this->getFormattedAddress());
-        }
-        if ($collection->count()) {
-            $address                = $collection->first();
-            $this->owner->Latitude  = $address->getLatitude();
-            $this->owner->Longitude = $address->getLongitude();
-            return $address;
+        try {
+            if ($this->owner->GeolocateOnLocation) {
+                $collection = Geocoder::getGeocoder()->geocode($this->getLocation());
+            } else {
+                $collection = Geocoder::getGeocoder()->geocode($this->getFormattedAddress());
+            }
+            if ($collection->count()) {
+                $address                = $collection->first();
+                $this->owner->Latitude  = $address->getLatitude();
+                $this->owner->Longitude = $address->getLongitude();
+                return $address;
+            }
+        } catch (\Geocoder\Exception\NoResult $ex) {
+            SS_Log::log($ex->getMessage(), SS_Log::DEBUG);
         }
         return false;
     }
