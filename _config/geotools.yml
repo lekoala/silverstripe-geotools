@@ -34,3 +34,24 @@ LeafletMap:
   default_zoom: 12
   map_options:
     scrollWheelZoom: false
+---
+Only:
+  classexists: 'Fluent'
+---
+Fluent:
+  field_exclude:
+    - 'Theme'
+    - '/^LocaleFilter_/i'
+    - 'Priority'
+    - 'StreetNumber'
+    - 'StreetName'
+    - 'PostalCode'
+    - 'Locality'
+    - 'SubLocality'
+    - 'CountyName'
+    - 'CountyCode'
+    - 'RegionName'
+    - 'RegionCode'
+    - 'CountryName'
+    - 'CountryCode'
+    - 'Timezone'
