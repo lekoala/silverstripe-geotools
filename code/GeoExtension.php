@@ -286,9 +286,10 @@ class GeoExtension extends DataExtension
         $localitygroup->setFieldHolderTemplate('AddressFieldHolder');
 
         $label = _t('GeoMemberExtension.COUNTRY', 'Country');
-        $fields->push(new CountryDropdownField('CountryCode',
+        $fields->push($countrydd = new CountryDropdownField('CountryCode',
             _t('GeoMemberExtension.COUNTRY', 'Country'), self::getCountryList(),
             $countryCode));
+        $countrydd->setEmptyString('');
 
         return $fields;
     }
@@ -337,10 +338,11 @@ class GeoExtension extends DataExtension
         if (!$timezone) {
             $timezone = date_default_timezone_get();
         }
-        $fields->push(new DropdownField('Timezone',
+        $fields->push($tzdd = new DropdownField('Timezone',
             _t('GeoMemberExtension.TIMEZONE', 'Timezone'),
             array_combine($tz, $tz), $timezone));
-
+        $tzdd->setEmptyString('');
+        
         return $fields;
     }
 
