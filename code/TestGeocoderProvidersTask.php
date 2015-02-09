@@ -52,6 +52,9 @@ class TestGeocoderProvidersTask extends BuildTask
                     'error');
                 DB::alteration_message($ex->getMessage(), 'error');
             }
+            catch (\Exception $ex) {
+                DB::alteration_message($ex->getMessage(), 'error');
+            }
         }
     }
 }
