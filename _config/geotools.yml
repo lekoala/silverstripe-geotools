@@ -10,6 +10,7 @@ Member:
 Geocoder:
   # or use whatver makes sense to you
   local_ip: '68.145.37.34'
+  local_address: 'Suite 800, 630 - 3Rd Ave. Sw, Calgary, AB, T2P-4L4, CA'
   default_format: '%S %n, %z %L'
   cache_enabled: true
   # https://github.com/egeloen/ivory-http-adapter
@@ -18,9 +19,11 @@ Geocoder:
   adapter_options :
     KeepAlive: true
     Timeout: 5
-  # look into code/thirdarty/Geocoder/Provider
+  # look into vendor/willdurand/geocoder/src/Geocoder/Provider
   providers:
     OpenStreetMap: []
+    #GoogleMaps: ['locale',null,true,'your_api_key']
+    #BingMaps: ['your_api_key','locale']
   geoip_data:
     city: 'geotools/ressources/GeoLite2-City.mmdb'
     country: 'geotools/ressources/GeoLite2-Country.mmdb'

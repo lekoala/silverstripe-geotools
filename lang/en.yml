@@ -1,0 +1,18 @@
+en:
+  GeoMemberExtension:
+    ADDRESSHEADER: Address
+    CITY: City
+    COORDS: Coordinates
+    COUNTRY: Country
+    GEOHEADER: 'Geo data'
+    GEOLOCATEONLOCATION: 'Only show location instead of full address'
+    LATITUDE: Latitude
+    LOCALITY: Locality
+    LONGITUDE: Longitude
+    POSTCODE: 'Postal Code'
+    POSTCODEPLACEHOLDER: Postcode
+    STREET: Street
+    STREETNAME: 'Street Name'
+    STREETNUMBER: 'Street Number'
+    STREETNUMBERPLACEHOLDER: N°
+    TIMEZONE: Timezone
