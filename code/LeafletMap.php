@@ -20,11 +20,22 @@ class LeafletMap extends ViewableData
     protected $tileOptions;
     protected $mapOptions;
     protected $content;
+    protected $itemsUrl;
 
     public function __construct()
     {
         parent::__construct();
         self::$instances++;
+    }
+
+    function getItemsUrl()
+    {
+        return $this->itemsUrl;
+    }
+
+    function setItemsUrl($itemsUrl)
+    {
+        $this->itemsUrl = $itemsUrl;
     }
 
     function getUseBuilder()
@@ -197,4 +208,10 @@ class LeafletMap extends ViewableData
         }
         return $this->renderWith('LeafletMap');
     }
+}
+
+class LeafletMapItem {
+    public $lat;
+    public $lon;
+    public $popup;
 }

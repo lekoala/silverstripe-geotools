@@ -3,6 +3,7 @@
 	 data-tilelayer="$TileLayer"
 	 data-tileoptions='$TileOptionsJson'
 	 data-mapoptions='$MapOptionsJson'
+	 data-itemsurl="$ItemsUrl"
 	 style="<% if Width %>width:$Width;<% end_if %><% if Height %>height:$Height;<% end_if %>"></div>
 
 <% if Content %>

@@ -457,4 +457,17 @@ class GeoExtension extends DataExtension
         }
         return false;
     }
+
+    /**
+     * Helper function to create items for map
+     * @return \LeafletMapItem
+     */
+    public function toLeafletMapItem()
+    {
+        $item        = new LeafletMapItem;
+        $item->lat   = $this->owner->Latitude;
+        $item->lon   = $this->owner->Longitude;
+        $item->popup = $this->owner->Title;
+        return $item;
+    }
 }
