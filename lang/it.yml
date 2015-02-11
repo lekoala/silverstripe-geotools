@@ -1,0 +1,18 @@
+it:
+  GeoMemberExtension:
+    ADDRESSHEADER: Indirizzo
+    CITY: Città
+    COORDS: Coordinate
+    COUNTRY: Paese
+    GEOHEADER: 'Dati Geo'
+    GEOLOCATEONLOCATION: 'Mostra solo luogo invece di indirizzo completo'
+    LATITUDE: Latitudine
+    LOCALITY: Località
+    LONGITUDE: Longitudine
+    POSTCODE: 'Codice postale'
+    POSTCODEPLACEHOLDER: CAP
+    STREET: Via
+    STREETNAME: 'Della via'
+    STREETNUMBER: 'Numero civico'
+    STREETNUMBERPLACEHOLDER: N°
+    TIMEZONE: Fuso orario
