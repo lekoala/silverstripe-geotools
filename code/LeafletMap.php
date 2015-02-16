@@ -5,213 +5,196 @@
  *
  * @author lekoala
  */
-class LeafletMap extends ViewableData
-{
-    protected static $instances = 0;
-    protected $enableClustering = false;
-    protected $useBuilder       = true;
-    protected $id;
-    protected $width            = '100%';
-    protected $height           = '300px';
-    protected $latitude;
-    protected $longitude;
-    protected $zoom;
-    protected $tileLayer;
-    protected $tileOptions;
-    protected $mapOptions;
-    protected $content;
-    protected $itemsUrl;
+class LeafletMap extends ViewableData {
 
-    public function __construct()
-    {
-        parent::__construct();
-        self::$instances++;
-    }
+	protected static $instances = 0;
+	protected $enableClustering = false;
+	protected $useBuilder = true;
+	protected $id;
+	protected $width = '100%';
+	protected $height = '300px';
+	protected $latitude;
+	protected $longitude;
+	protected $zoom;
+	protected $tileLayer;
+	protected $tileOptions;
+	protected $mapOptions;
+	protected $content;
+	protected $itemsUrl;
 
-    function getItemsUrl()
-    {
-        return $this->itemsUrl;
-    }
+	public function __construct() {
+		parent::__construct();
+		self::$instances++;
+	}
 
-    function setItemsUrl($itemsUrl)
-    {
-        $this->itemsUrl = $itemsUrl;
-    }
+	function getItemsUrl() {
+		return $this->itemsUrl;
+	}
 
-    function getUseBuilder()
-    {
-        return $this->useBuilder;
-    }
+	function setItemsUrl($itemsUrl) {
+		$this->itemsUrl = $itemsUrl;
+	}
 
-    function setUseBuilder($useBuilder)
-    {
-        $this->useBuilder = $useBuilder;
-        return $this;
-    }
+	function getUseBuilder() {
+		return $this->useBuilder;
+	}
 
-    function getContent()
-    {
-        return $this->content;
-    }
+	function setUseBuilder($useBuilder) {
+		$this->useBuilder = $useBuilder;
+		return $this;
+	}
 
-    function setContent($content)
-    {
-        $this->content = $content;
-        return $this;
-    }
+	function getContent() {
+		return $this->content;
+	}
 
-    function getZoom()
-    {
-        if ($this->zoom) {
-            return $this->zoom;
-        }
-        return self::config()->default_zoom;
-    }
+	function setContent($content) {
+		$this->content = $content;
+		return $this;
+	}
 
-    function setZoom($v)
-    {
-        $this->zoom = $v;
-        return $this;
-    }
+	function getZoom() {
+		if ($this->zoom) {
+			return $this->zoom;
+		}
+		return self::config()->default_zoom;
+	}
 
-    function getTileLayer()
-    {
-        if ($this->tileLayer) {
-            return $this->tileLayer;
-        }
-        return self::config()->tilelayer;
-    }
+	function setZoom($v) {
+		$this->zoom = $v;
+		return $this;
+	}
 
-    function setTileLayer($v)
-    {
-        $this->tileLayer = $v;
-        return $this;
-    }
+	function getTileLayer() {
+		if ($this->tileLayer) {
+			return $this->tileLayer;
+		}
+		return self::config()->tilelayer;
+	}
 
-    function getMapOptions()
-    {
-        if ($this->mapOptions) {
-            return $this->mapOptions;
-        }
-        return self::config()->map_options;
-    }
+	function setTileLayer($v) {
+		$this->tileLayer = $v;
+		return $this;
+	}
 
-    function setMapOptions($v)
-    {
-        $this->mapOptions = $v;
-        return $this;
-    }
+	function getMapOptions() {
+		if ($this->mapOptions) {
+			return $this->mapOptions;
+		}
+		return self::config()->map_options;
+	}
 
-    function getMapOptionsJson()
-    {
-        return json_encode($this->getMapOptions());
-    }
+	function setMapOptions($v) {
+		$this->mapOptions = $v;
+		return $this;
+	}
 
-    function getTileOptions()
-    {
-        if ($this->tileOptions) {
-            return $this->tileOptions;
-        }
-        return self::config()->tile_options;
-    }
+	function getMapOptionsJson() {
+		return json_encode($this->getMapOptions());
+	}
 
-    function setTileOptions($v)
-    {
-        $this->tileOptions = $v;
-        return $this;
-    }
+	function getTileOptions() {
+		if ($this->tileOptions) {
+			return $this->tileOptions;
+		}
+		return self::config()->tile_options;
+	}
 
-    function getTileOptionsJson()
-    {
-        return json_encode($this->getTileOptions());
-    }
+	function setTileOptions($v) {
+		$this->tileOptions = $v;
+		return $this;
+	}
 
-    function getEnableClustering()
-    {
-        return $this->enableClustering;
-    }
+	function getTileOptionsJson() {
+		return json_encode($this->getTileOptions());
+	}
 
-    function setEnableClustering($enableClustering)
-    {
-        $this->enableClustering = $enableClustering;
-    }
+	function getEnableClustering() {
+		return $this->enableClustering;
+	}
 
-    function getLatitude()
-    {
-        return $this->latitude;
-    }
+	function setEnableClustering($enableClustering) {
+		$this->enableClustering = $enableClustering;
+	}
 
-    function setLatitude($latitude)
-    {
-        $this->latitude = $latitude;
-        return $this;
-    }
+	function getLatitude() {
+		return $this->latitude;
+	}
 
-    function getLongitude()
-    {
-        return $this->longitude;
-    }
+	function setLatitude($latitude) {
+		$this->latitude = $latitude;
+		return $this;
+	}
 
-    function setLongitude($longitude)
-    {
-        $this->longitude = $longitude;
-        return $this;
-    }
+	function getLongitude() {
+		return $this->longitude;
+	}
 
-    function getHeight()
-    {
-        return $this->height;
-    }
+	function setLongitude($longitude) {
+		$this->longitude = $longitude;
+		return $this;
+	}
 
-    function setHeight($height)
-    {
-        $this->height = $height;
-        return $this;
-    }
+	function getHeight() {
+		return $this->height;
+	}
 
-    function getWidth()
-    {
-        return $this->width;
-    }
+	function setHeight($height) {
+		$this->height = $height;
+		return $this;
+	}
 
-    function setWidth($width)
-    {
-        $this->width = $width;
-        return $this;
-    }
+	function getWidth() {
+		return $this->width;
+	}
 
-    function getID()
-    {
-        if ($this->id) {
-            return $this->id;
-        }
-        return 'LeafletMap-'.self::$instances;
-    }
+	function setWidth($width) {
+		$this->width = $width;
+		return $this;
+	}
 
-    function setID($id)
-    {
-        $this->id = $id;
-        return $this;
-    }
+	function getID() {
+		if ($this->id) {
+			return $this->id;
+		}
+		return 'LeafletMap-' . self::$instances;
+	}
 
-    public function forTemplate()
-    {
-        Requirements::javascript('geotools/javascript/leaflet.js');
-        Requirements::css('geotools/javascript/leaflet.css');
-        if ($this->enableClustering) {
-            Requirements::javascript('geotools/javascript/PruneCluster.min.js');
-            Requirements::css('geotools/javascript/LeafletStyleSheet.css');
-        }
-        if ($this->useBuilder) {
-            Requirements::javascript('geotools/javascript/map-builder.js');
-            Requirements::customScript("jQuery(function() { buildLeafletMap('{$this->getID()}') })");
-        }
-        return $this->renderWith('LeafletMap');
-    }
+	function setID($id) {
+		$this->id = $id;
+		return $this;
+	}
+
+	public function forTemplate() {
+		Requirements::javascript('geotools/javascript/leaflet.js');
+		Requirements::css('geotools/javascript/leaflet.css');
+		if ($this->enableClustering) {
+			Requirements::javascript('geotools/javascript/PruneCluster.min.js');
+			Requirements::css('geotools/javascript/LeafletStyleSheet.css');
+		}
+		if ($this->useBuilder) {
+			Requirements::javascript('geotools/javascript/map-builder.js');
+			Requirements::customScript("jQuery(function() { buildLeafletMap('{$this->getID()}') })");
+		}
+		return $this->renderWith('LeafletMap');
+	}
+
 }
 
 class LeafletMapItem {
-    public $lat;
-    public $lon;
-    public $popup;
+
+	public $lat;
+	public $lon;
+	public $popup; // Title by default or use getLeafletPopup method
+	public $number; // Will show as a number on the map
+	public $category_title;
+	public $category_image; // Url
+
+}
+
+class LeafletMapItemCategory {
+
+	public $title;
+	public $image;
+
 }

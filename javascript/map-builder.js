@@ -28,16 +28,19 @@ function buildLeafletMap(id) {
 					.openPopup();
 		}
 	}
-	
+
 	// 100% height support
 	if (!height || height === '0px') {
 		$map.height($(window).height());
 		map.invalidateSize();
 	}
 
+
 	// Load items
 	if (itemsurl) {
+
 		$.getJSON(itemsurl, function (data) {
+
 			var points = [];
 			for (var i = 0; i < data.length; i++) {
 				var item = data[i];
@@ -45,7 +48,27 @@ function buildLeafletMap(id) {
 					continue;
 				}
 				var point = [item.lat, item.lon];
-				var marker = L.marker(point);
+
+				var markerOpts = {};
+				var icon;
+				
+				if (item.number) {
+					icon = L.divIcon({
+						iconSize: [22, 6],
+						html: '<div class="leaflet-map-number">' + item.number + '</div>'
+					});
+					markerOpts.icon = icon;
+				}
+				else if (item.category_image) {
+					icon = L.icon({
+						iconUrl: item.category_image,
+						popupAnchor: [22, 6]
+					});
+					markerOpts.icon = icon;
+				}
+
+				var marker = L.marker(point, markerOpts);
+
 				if (item.popup) {
 					marker.bindPopup(item.popup);
 				}
@@ -56,9 +79,8 @@ function buildLeafletMap(id) {
 			map.fitBounds(bounds);
 		});
 	}
-	
 	// Show something if nothing is set
-	if(!lat && !lon && !itemsurl) {
+	if (!lat && !lon && !itemsurl) {
 		map.setView(new L.LatLng(0, 0), 1);
 	}
 }
