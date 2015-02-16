@@ -12,7 +12,7 @@ it:
     POSTCODE: 'Codice postale'
     POSTCODEPLACEHOLDER: CAP
     STREET: Via
-    STREETNAME: 'Della via'
-    STREETNUMBER: 'Numero civico'
+    STREETNAME: 'Nome della via'
+    STREETNUMBER: 'Numero'
     STREETNUMBERPLACEHOLDER: N°
     TIMEZONE: Fuso orario
