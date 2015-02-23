@@ -14,12 +14,11 @@ class GeoExtension extends DataExtension {
 		'Longitude' => 'Float(10,6)',
 		'StreetNumber' => 'Varchar(255)',
 		'StreetName' => 'Varchar(255)',
-		'PostalCode' => 'Varchar(20)',
+		'PostalCode' => 'Varchar(32)',
 		'Locality' => 'Varchar(255)',
 		'SubLocality' => 'Varchar(255)',
-		'CountyName' => 'Varchar(255)',
-		'CountyCode' => 'Varchar',
-		'RegionName' => 'Varchar(255)',
+		'AdministrativeArea' => 'Varchar(255)',
+        'SubAdministrativeArea' => 'Varchar(255)',
 		'RegionCode' => 'Varchar',
 		'CountryName' => 'Varchar(255)',
 		'CountryCode' => 'Varchar(2)',
@@ -51,24 +50,6 @@ class GeoExtension extends DataExtension {
 	 */
 	function getCountryFromCode() {
 		return Zend_Locale::getTranslation($this->owner->CountryCode, 'territory', i18n::get_locale());
-	}
-
-	/**
-	 * Get county
-	 *
-	 * @return \Geocoder\Model\County
-	 */
-	function getCounty() {
-		return new \Geocoder\Model\County($this->owner->CountyName, $this->owner->CountyCode);
-	}
-
-	/**
-	 * Get region
-	 *
-	 * @return \Geocoder\Model\Region
-	 */
-	function getRegion() {
-		return new \Geocoder\Model\Region($this->owner->RegionName, $this->owner->RegionCode);
 	}
 
 	/**
@@ -117,6 +98,33 @@ class GeoExtension extends DataExtension {
 		return $this->owner->Locality;
 	}
 
+    /**
+     * Get sublocality
+     * 
+     * @return string
+     */
+    function getSubLocality() {
+        return $this->owner->SubLocality;
+    }
+
+    /**
+     * Get administrative area (State / Province / Region)
+     *
+     * @return string
+     */
+    function getAdministrativeArea() {
+        return $this->owner->AdministrativeArea;
+    }
+
+    /**
+     * Get sub administrative area (County / District)
+     *
+     * @return string
+     */
+    function getSubAdministrativeArea() {
+        return $this->owner->SubAdministrativeArea;
+    }
+
 	/**
 	 * Get location (number street)
 	 *
@@ -160,6 +168,7 @@ class GeoExtension extends DataExtension {
 	 * @param int $lat
 	 * @param int $lng
 	 * @param int $distance in kilometers => 6371 (radius of earth)
+     * @return ArrayList
 	 */
 	public static function Nearby($lat, $lng, $distance = 100, $limit = null) {
 		$class = $this->owner->class;
