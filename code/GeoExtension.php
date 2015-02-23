@@ -17,8 +17,8 @@ class GeoExtension extends DataExtension {
 		'PostalCode' => 'Varchar(32)',
 		'Locality' => 'Varchar(255)',
 		'SubLocality' => 'Varchar(255)',
-		'AdministrativeArea' => 'Varchar(255)',
-        'SubAdministrativeArea' => 'Varchar(255)',
+		'AdministrativeArea' => 'Varchar(255)', // State, province, region...
+        'SubAdministrativeArea' => 'Varchar(255)', // County, district...
 		'RegionCode' => 'Varchar',
 		'CountryName' => 'Varchar(255)',
 		'CountryCode' => 'Varchar(2)',
@@ -67,7 +67,7 @@ class GeoExtension extends DataExtension {
 	 * @return \Geocoder\Model\Address
 	 */
 	function getAddress() {
-		return new \Geocoder\Model\Address($this->getCoordinates(), null, $this->owner->StreetNumber, $this->owner->StreetName, $this->owner->PostalCode, $this->owner->Locality, $this->owner->SubLocality, $this->getCounty(), $this->getRegion(), $this->getCountry(), $this->owner->Timezone);
+		return new \Geocoder\Model\Address($this->getCoordinates(), null, $this->owner->StreetNumber, $this->owner->StreetName, $this->owner->PostalCode, $this->owner->Locality, $this->owner->SubLocality, null, $this->getCountry(), $this->owner->Timezone);
 	}
 
 	/**
@@ -97,33 +97,6 @@ class GeoExtension extends DataExtension {
 	function getCity() {
 		return $this->owner->Locality;
 	}
-
-    /**
-     * Get sublocality
-     * 
-     * @return string
-     */
-    function getSubLocality() {
-        return $this->owner->SubLocality;
-    }
-
-    /**
-     * Get administrative area (State / Province / Region)
-     *
-     * @return string
-     */
-    function getAdministrativeArea() {
-        return $this->owner->AdministrativeArea;
-    }
-
-    /**
-     * Get sub administrative area (County / District)
-     *
-     * @return string
-     */
-    function getSubAdministrativeArea() {
-        return $this->owner->SubAdministrativeArea;
-    }
 
 	/**
 	 * Get location (number street)
