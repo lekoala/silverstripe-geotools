@@ -15,10 +15,12 @@ class LeafletMap extends ViewableData {
 	protected $height = '300px';
 	protected $latitude;
 	protected $longitude;
+	protected $icon;
 	protected $zoom;
 	protected $tileLayer;
 	protected $tileOptions;
 	protected $mapOptions;
+	protected $builderOptions;
 	protected $content;
 	protected $itemsUrl;
 
@@ -52,6 +54,15 @@ class LeafletMap extends ViewableData {
 		$this->content = $content;
 		return $this;
 	}
+	
+	function getIcon() {
+		return $this->icon;
+	}
+	
+	function setIcon($icon) {
+		$this->icon = $icon;
+		return $this;
+	}
 
 	function getZoom() {
 		if ($this->zoom) {
@@ -76,12 +87,17 @@ class LeafletMap extends ViewableData {
 		$this->tileLayer = $v;
 		return $this;
 	}
-
+	
 	function getMapOptions() {
 		if ($this->mapOptions) {
 			return $this->mapOptions;
 		}
 		return self::config()->map_options;
+	}
+	
+	function setMapOption($k,$v) {
+		$this->mapOptions[$k] = $v;
+		return $this;
 	}
 
 	function setMapOptions($v) {
@@ -91,6 +107,27 @@ class LeafletMap extends ViewableData {
 
 	function getMapOptionsJson() {
 		return json_encode($this->getMapOptions());
+	}
+	
+	function getBuilderOptions() {
+		if ($this->builderOptions) {
+			return $this->builderOptions;
+		}
+		return self::config()->builder_options;
+	}
+
+	function setBuilderOption($k,$v) {
+		$this->builderOptions[$k] = $v;
+		return $this;
+	}
+	
+	function setBuilderOptions($v) {
+		$this->builderOptions = $v;
+		return $this;
+	}
+
+	function getBuilderOptionsJson() {
+		return json_encode($this->getBuilderOptions());
 	}
 
 	function getTileOptions() {

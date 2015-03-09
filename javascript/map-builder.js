@@ -2,16 +2,23 @@ function buildLeafletMap(id) {
 	var $map = $('#' + id);
 	var $content = $('#' + id + '_content');
 	var mapOptions = $map.data('mapoptions');
+	var builderOptions = $map.data('builderoptions');
 	var height = $map.css('height');
 	var lat = $map.data('lat');
 	var lon = $map.data('lon');
-	var zoom = $map.data('zoom');
+	var icon = $map.data('icon');
+	var zoom = 16;
 	var itemsurl = $map.data('itemsurl');
 	if (!zoom) {
 		zoom = 12;
 	}
 	var tilelayer = $map.data('tilelayer');
 	var tileOptions = $map.data('tileoptions');
+
+	var defaultIconSize = builderOptions.iconSize;
+	var defaultIconWidth = defaultIconSize[0];
+	var iconHalfWidth = defaultIconWidth / 2;
+	var defaultIconHeight = defaultIconSize[1];
 
 	var map = L.map(id, mapOptions);
 
@@ -21,14 +28,24 @@ function buildLeafletMap(id) {
 	// Define base marker
 	if (lat && lon) {
 		map.setView(new L.LatLng(lat, lon), zoom);
-		var marker = L.marker([lat, lon]);
+		var markerOpts = {};
+		if (icon) {
+			console.log(iconHalfWidth);
+			icon = L.icon({
+				iconUrl: icon,
+				iconSize: defaultIconSize,
+				iconAnchor: [iconHalfWidth, defaultIconHeight],
+				popupAnchor: [0, -defaultIconHeight]
+			});
+			markerOpts.icon = icon;
+		}
+		var marker = L.marker([lat, lon], markerOpts);
 		marker.addTo(map);
 		if ($content.length) {
 			marker.bindPopup($content.html())
 					.openPopup();
 		}
 	}
-
 	// 100% height support
 	if (!height || height === '0px') {
 		$map.height($(window).height());
@@ -51,10 +68,12 @@ function buildLeafletMap(id) {
 
 				var markerOpts = {};
 				var icon;
-				
+
 				if (item.number) {
 					icon = L.divIcon({
-						iconSize: [22, 6],
+						iconSize: defaultIconSize,
+						iconAnchor: [iconHalfWidth, defaultIconHeight],
+						popupAnchor: [0, -defaultIconHeight],
 						html: '<div class="leaflet-map-number">' + item.number + '</div>'
 					});
 					markerOpts.icon = icon;
@@ -62,7 +81,8 @@ function buildLeafletMap(id) {
 				else if (item.category_image) {
 					icon = L.icon({
 						iconUrl: item.category_image,
-						popupAnchor: [22, 6]
+						iconAnchor: [iconHalfWidth, defaultIconHeight],
+						popupAnchor: [0, -defaultIconHeight]
 					});
 					markerOpts.icon = icon;
 				}
@@ -72,12 +92,20 @@ function buildLeafletMap(id) {
 				if (item.popup) {
 					marker.bindPopup(item.popup);
 				}
+
 				marker.addTo(map);
 				points.push(point);
 			}
-			var bounds = new L.LatLngBounds(points);
-			map.fitBounds(bounds);
+
+			if (builderOptions.fitToBounds) {
+				var bounds = new L.LatLngBounds(points);
+				map.fitBounds(bounds);
+			}
+			else {
+
+			}
 		});
+		map.scrollWheelZoom.enable();
 	}
 	// Show something if nothing is set
 	if (!lat && !lon && !itemsurl) {

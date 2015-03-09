@@ -37,6 +37,9 @@ LeafletMap:
   default_zoom: 12
   map_options:
     scrollWheelZoom: false
+  builder_options:
+    fitToBounds: true
+    iconSize: [25,41]
 ---
 Only:
   classexists: 'Fluent'
