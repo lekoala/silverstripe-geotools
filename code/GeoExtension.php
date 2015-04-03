@@ -61,12 +61,13 @@ class GeoExtension extends DataExtension
      * @param string $code
      * @return string
      */
-    public static function convertCountryCodeToName($code) {
-        if(!$code) {
+    public static function convertCountryCodeToName($code)
+    {
+        if (!$code) {
             return;
         }
-        return Zend_Locale::getTranslation($code,
-                'territory', i18n::get_locale());
+        return Zend_Locale::getTranslation($code, 'territory',
+                i18n::get_locale());
     }
 
     /**
@@ -76,7 +77,7 @@ class GeoExtension extends DataExtension
      */
     function getCountry()
     {
-        return (string) new \Geocoder\Model\Country($this->owner->CountryName,
+        return new \Geocoder\Model\Country($this->owner->CountryName,
             $this->owner->CountryCode);
     }
 
@@ -205,11 +206,17 @@ class GeoExtension extends DataExtension
 
     public function updateCMSFields(FieldList $fields)
     {
-        $dbFields = self::$db;
-        foreach ($dbFields as $name => $type) {
-            $fields->removeByName($name);
+        // Add tab if it does not exists yet
+        if (!$fields->fieldByName('Root.Geo')) {
+            $geoFields = $this->getGeoFields(false);
+
+            // Avoid duplicates
+            foreach ($geoFields->dataFields() as $geoField) {
+                $fields->removeByName($geoField->getName());
+            }
+
+            $fields->addFieldsToTab('Root.Geo', $geoFields);
         }
-        $fields->addFieldsToTab('Root.Geo', $this->getGeoFields(false));
     }
 
     /**
