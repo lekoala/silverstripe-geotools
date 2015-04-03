@@ -23,7 +23,7 @@ class GeolocateAllMembersTask extends BuildTask
                     $res = $Member->Geocode();
                     if ($res) {
                         DB::alteration_message('Geocode success', 'success');
-                        $Member->save();
+                        $Member->write();
                     } else {
                         DB::alteration_message('Geocode error', 'error');
                     }
