@@ -1,4 +1,6 @@
 <?php
+if(!defined('GEOTOOLS_PATH')) define('GEOTOOLS_PATH', rtrim(basename(dirname(__FILE__))));
+
 // Autoconfigure providers based on constants
 
 $baseProviders = Config::inst()->get('Geocoder', 'providers');

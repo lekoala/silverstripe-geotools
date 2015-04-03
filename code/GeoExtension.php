@@ -52,7 +52,20 @@ class GeoExtension extends DataExtension
      */
     function getCountryFromCode()
     {
-        return Zend_Locale::getTranslation($this->owner->CountryCode,
+        return self::convertCountryCodeToName($this->owner->CountryCode);
+    }
+
+    /**
+     * Convert country code to name
+     *
+     * @param string $code
+     * @return string
+     */
+    public static function convertCountryCodeToName($code) {
+        if(!$code) {
+            return;
+        }
+        return Zend_Locale::getTranslation($code,
                 'territory', i18n::get_locale());
     }
 
@@ -63,7 +76,7 @@ class GeoExtension extends DataExtension
      */
     function getCountry()
     {
-        return new \Geocoder\Model\Country($this->owner->CountryName,
+        return (string) new \Geocoder\Model\Country($this->owner->CountryName,
             $this->owner->CountryCode);
     }
 
@@ -184,6 +197,9 @@ class GeoExtension extends DataExtension
         foreach ($records as $r) {
             $ids[] = $r['ID'];
         }
+        if (empty($ids)) {
+            return $class::get()->filter('ID', 0);
+        }
         return $class::get()->filter(array('ID' => $ids));
     }
 
@@ -193,7 +209,7 @@ class GeoExtension extends DataExtension
         foreach ($dbFields as $name => $type) {
             $fields->removeByName($name);
         }
-        $fields->addFieldsToTab('Root.Geo', $this->getGeoFields());
+        $fields->addFieldsToTab('Root.Geo', $this->getGeoFields(false));
     }
 
     /**
@@ -212,13 +228,13 @@ class GeoExtension extends DataExtension
             $addressFromIp = Geocoder::geocodeIp(null, 'city', true);
             if ($addressFromIp) {
                 if (!$localityValue) {
-                    $localityValue = $addressFromIp->getLocality();
+                    $localityValue = (string) $addressFromIp->getLocality();
                 }
                 if (!$countryCode) {
-                    $countryCode = $addressFromIp->getCountryCode();
+                    $countryCode = (string) $addressFromIp->getCountryCode();
                 }
                 if (!$postalCodeValue) {
-                    $postalCodeValue = $addressFromIp->getPostalCode();
+                    $postalCodeValue = (string) $addressFromIp->getPostalCode();
                 }
             }
         }
