@@ -72,13 +72,45 @@ class GeoExtension extends DataExtension
 
     /**
      * Get country
-     *
-     * @return TemplateCountry
+     * 
+     * @return string
      */
     function getCountry()
     {
-        return new TemplateCountry($this->owner->CountryName,
+        if ($this->owner->CountryName) {
+            return $this->owner->CountryName;
+        }
+        if ($this->owner->CountryCode) {
+            return $this->getCountryFromCode();
+        }
+    }
+
+    /**
+     * Get country as an object
+     *
+     * @return \Geocoder\Model\Country
+     */
+    function getCountryObject()
+    {
+        return new \Geocoder\Model\Country($this->getCountry(),
             $this->owner->CountryCode);
+    }
+
+    /**
+     * Get admin level collection (up to two levels)
+     *
+     * @return \Geocoder\Model\AdminLevelCollection
+     */
+    function getAdminLevelObject() {
+        $arr = array();
+        if($this->owner->SubAdministrativeArea) {
+            $arr[] = new \Geocoder\Model\AdminLevel(8,$this->owner->SubAdministrativeArea,'');
+        }
+        if($this->owner->AdministrativeArea) {
+            $arr[] = new \Geocoder\Model\AdminLevel(4,$this->owner->AdministrativeArea,'');
+        }
+        
+        return new \Geocoder\Model\AdminLevelCollection($arr);
     }
 
     /**
@@ -88,10 +120,10 @@ class GeoExtension extends DataExtension
      */
     function getAddress()
     {
-        return new \Geocoder\Model\Address($this->getCoordinates(), null,
+        return new \Geocoder\Model\Address($this->getCoordinatesObjet(), null,
             $this->owner->StreetNumber, $this->owner->StreetName,
             $this->owner->PostalCode, $this->owner->Locality,
-            $this->owner->SubLocality, null, $this->getCountry(),
+            $this->owner->SubLocality, $this->getAdminLevelObject(), $this->getCountryObject(),
             $this->owner->Timezone);
     }
 
@@ -109,9 +141,18 @@ class GeoExtension extends DataExtension
     /**
      * Get coordinates as array
      *
+     * @return array
+     */
+    function getCoordinates() {
+        return array($this->owner->Latitude, $this->owner->Longitude);
+    }
+
+    /**
+     * Get coordinates as object
+     *
      * @return \Geocoder\Model\Coordinates
      */
-    function getCoordinates()
+    function getCoordinatesObjet()
     {
         return new \Geocoder\Model\Coordinates($this->owner->Latitude,
             $this->owner->Longitude);
