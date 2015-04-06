@@ -73,11 +73,11 @@ class GeoExtension extends DataExtension
     /**
      * Get country
      *
-     * @return \Geocoder\Model\Country
+     * @return TemplateCountry
      */
     function getCountry()
     {
-        return new \Geocoder\Model\Country($this->owner->CountryName,
+        return new TemplateCountry($this->owner->CountryName,
             $this->owner->CountryCode);
     }
 
