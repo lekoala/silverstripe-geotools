@@ -252,6 +252,11 @@ class GeoExtension extends DataExtension
             $geoFields = $this->getGeoFields(false);
 
             // Avoid duplicates
+			$fields->removeByName('CountryName');
+			$fields->removeByName('SubLocality');
+			$fields->removeByName('AdministrativeArea');
+			$fields->removeByName('SubAdministrativeArea');
+			$fields->removeByName('RegionCode');
             foreach ($geoFields->dataFields() as $geoField) {
                 $fields->removeByName($geoField->getName());
             }
