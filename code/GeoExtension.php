@@ -189,6 +189,22 @@ class GeoExtension extends DataExtension
     }
 
     /**
+     * @param string $value
+	 * @return DataObject $this
+     */
+    public function setLatitude($value) {
+        return $this->owner->setField('Latitude',  str_replace(',', '.', $value));
+    }
+
+    /**
+     * @param string $value
+	 * @return DataObject $this
+     */
+    public function setLongitude($value) {
+        return $this->owner->setField('Longitude',  str_replace(',', '.', $value));
+    }
+
+    /**
      * Get address for js
      *
      * @param string $format
