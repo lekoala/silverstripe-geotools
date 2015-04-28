@@ -163,7 +163,6 @@ class Geocoder extends Object
      * @param string $type city|country
      * @param bool $refresh_cache
      * @return Geocoder\Model\Address
-     * @throws InvalidArgumentException
      */
     static public function geocodeIp($ip = null, $type = 'city',
                                      $refresh_cache = false)
@@ -227,8 +226,8 @@ class Geocoder extends Object
 
         try {
             $result = self::getGeocoder()->reverse($latitude, $longitude);
-            if (count($result) == 1) {
-                $result = $result[0];
+            if ($result instanceof \Geocoder\Model\AddressCollection) {
+                $result = $result->first();
             }
             if ($result && self::config()->cache_enabled) {
                 $cache->save(serialize($result), $cache_key, array('reverse'),
@@ -252,7 +251,6 @@ class Geocoder extends Object
      * @param string $address
      * @param bool $refresh_cache
      * @return Geocoder\Model\Address
-     * @throws RuntimeException
      */
     static public function geocodeAddress($address, $refresh_cache = false)
     {
@@ -270,8 +268,8 @@ class Geocoder extends Object
 
         try {
             $result = self::getGeocoder()->geocode($address);
-            if (count($result) == 1) {
-                $result = $result[0];
+            if ($result instanceof \Geocoder\Model\AddressCollection) {
+                $result = $result->first();
             }
             if ($result && self::config()->cache_enabled) {
                 $cache->save(serialize($result), $cache_key, array('address'),

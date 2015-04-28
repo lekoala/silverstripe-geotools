@@ -19,7 +19,6 @@ class GeoExtension extends DataExtension
         'SubLocality' => 'Varchar(255)',
         'AdministrativeArea' => 'Varchar(255)', // State, province, region...
         'SubAdministrativeArea' => 'Varchar(255)', // County, district...
-        'RegionCode' => 'Varchar',
         'CountryName' => 'Varchar(255)',
         'CountryCode' => 'Varchar(2)',
         'Timezone' => 'Varchar',
@@ -101,15 +100,18 @@ class GeoExtension extends DataExtension
      *
      * @return \Geocoder\Model\AdminLevelCollection
      */
-    function getAdminLevelObject() {
+    function getAdminLevelObject()
+    {
         $arr = array();
-        if($this->owner->SubAdministrativeArea) {
-            $arr[] = new \Geocoder\Model\AdminLevel(8,$this->owner->SubAdministrativeArea,'');
+        if ($this->owner->SubAdministrativeArea) {
+            $arr[] = new \Geocoder\Model\AdminLevel(8,
+                $this->owner->SubAdministrativeArea, '');
         }
-        if($this->owner->AdministrativeArea) {
-            $arr[] = new \Geocoder\Model\AdminLevel(4,$this->owner->AdministrativeArea,'');
+        if ($this->owner->AdministrativeArea) {
+            $arr[] = new \Geocoder\Model\AdminLevel(4,
+                $this->owner->AdministrativeArea, '');
         }
-        
+
         return new \Geocoder\Model\AdminLevelCollection($arr);
     }
 
@@ -123,8 +125,8 @@ class GeoExtension extends DataExtension
         return new \Geocoder\Model\Address($this->getCoordinatesObjet(), null,
             $this->owner->StreetNumber, $this->owner->StreetName,
             $this->owner->PostalCode, $this->owner->Locality,
-            $this->owner->SubLocality, $this->getAdminLevelObject(), $this->getCountryObject(),
-            $this->owner->Timezone);
+            $this->owner->SubLocality, $this->getAdminLevelObject(),
+            $this->getCountryObject(), $this->owner->Timezone);
     }
 
     /**
@@ -143,7 +145,8 @@ class GeoExtension extends DataExtension
      *
      * @return array
      */
-    function getCoordinates() {
+    function getCoordinates()
+    {
         return array($this->owner->Latitude, $this->owner->Longitude);
     }
 
@@ -190,18 +193,20 @@ class GeoExtension extends DataExtension
 
     /**
      * @param string $value
-	 * @return DataObject $this
+     * @return DataObject $this
      */
-    public function setLatitude($value) {
-        return $this->owner->setField('Latitude',  str_replace(',', '.', $value));
+    public function setLatitude($value)
+    {
+        return $this->owner->setField('Latitude', str_replace(',', '.', $value));
     }
 
     /**
      * @param string $value
-	 * @return DataObject $this
+     * @return DataObject $this
      */
-    public function setLongitude($value) {
-        return $this->owner->setField('Longitude',  str_replace(',', '.', $value));
+    public function setLongitude($value)
+    {
+        return $this->owner->setField('Longitude', str_replace(',', '.', $value));
     }
 
     /**
@@ -268,11 +273,10 @@ class GeoExtension extends DataExtension
             $geoFields = $this->getGeoFields(false);
 
             // Avoid duplicates
-			$fields->removeByName('CountryName');
-			$fields->removeByName('SubLocality');
-			$fields->removeByName('AdministrativeArea');
-			$fields->removeByName('SubAdministrativeArea');
-			$fields->removeByName('RegionCode');
+            $fields->removeByName('CountryName');
+            $fields->removeByName('SubLocality');
+            $fields->removeByName('AdministrativeArea');
+            $fields->removeByName('SubAdministrativeArea');
             foreach ($geoFields->dataFields() as $geoField) {
                 $fields->removeByName($geoField->getName());
             }
@@ -482,14 +486,28 @@ class GeoExtension extends DataExtension
         if (!$this->owner->Latitude) {
             return false;
         }
-        try {
-            $results = Geocoder::getGeocoder()->reverse($this->owner->Latitude,
+        $results = Geocoder::reverseGeocode($this->owner->Latitude,
                 $this->owner->Longitude);
-            if ($results->count()) {
-                return $results->first();
+
+        if ($results) {
+            $this->owner->StreetNumber = $results->getStreetNumber();
+            $this->owner->StreetName   = $results->getStreetName();
+            $this->owner->PostalCode   = $results->getPostalCode();
+            $this->owner->Locality     = $results->getLocality();
+            $this->owner->SubLocality  = $results->getSubLocality();
+            $this->owner->CountryName  = $results->getCountry();
+            $this->owner->CountryCode  = $results->getCountryCode();
+            if (count($results->getAdminLevels())) {
+                $all = $results->getAdminLevels();
+
+                /* @var \Geocoder\Model\AdminLevel $firstLevel */
+                $firstLevel                      = $all[0];
+                $this->owner->AdministrativeArea = $firstLevel->getName();
+                if (count($all) > 1) {
+                    $secondLevel                        = $all[1];
+                    $this->owner->SubAdministrativeArea = $secondLevel->getName();
+                }
             }
-        } catch (\Geocoder\Exception\NoResult $ex) {
-            SS_Log::log($ex->getMessage(), SS_Log::DEBUG);
         }
         return false;
     }
@@ -503,20 +521,15 @@ class GeoExtension extends DataExtension
         if (!$this->canBeGeolocalized()) {
             return false;
         }
-        try {
-            if ($this->owner->GeolocateOnLocation) {
-                $collection = Geocoder::getGeocoder()->geocode($this->getLocation());
-            } else {
-                $collection = Geocoder::getGeocoder()->geocode($this->getFormattedAddress());
-            }
-            if ($collection->count()) {
-                $address                = $collection->first();
-                $this->owner->Latitude  = $address->getLatitude();
-                $this->owner->Longitude = $address->getLongitude();
-                return $address;
-            }
-        } catch (\Geocoder\Exception\NoResult $ex) {
-            SS_Log::log($ex->getMessage(), SS_Log::DEBUG);
+        if ($this->owner->GeolocateOnLocation) {
+            $result = Geocoder::geocodeAddress($this->getLocation());
+        } else {
+            $result = Geocoder::geocodeAddress($this->getFormattedAddress());
+        }
+        if ($result) {
+            $this->owner->Latitude  = $result->getLatitude();
+            $this->owner->Longitude = $result->getLongitude();
+            return $result;
         }
         return false;
     }
