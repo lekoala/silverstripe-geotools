@@ -221,6 +221,16 @@ class GeoExtension extends DataExtension
     }
 
     /**
+     * Get full address
+     *
+     * @param string $format
+     * @return string
+     */
+    public function getFullAddress($format = null) {
+        return $this->getFormattedAddress($format);
+    }
+
+    /**
      * Returns the full address in a simple HTML template.
      *
      * @return string
