@@ -85,15 +85,6 @@ class GeoExtension extends DataExtension
     }
 
     /**
-     * Alias of get country
-     *
-     * @return string
-     */
-    function getCountryName() {
-        return $this->getCountry();
-    }
-
-    /**
      * Get country as an object
      *
      * @return \Geocoder\Model\Country
