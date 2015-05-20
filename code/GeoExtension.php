@@ -197,7 +197,7 @@ class GeoExtension extends DataExtension
      */
     public function setLatitude($value)
     {
-        return $this->owner->setField('Latitude', str_replace(',', '.', $value));
+        return $this->owner->setField('Latitude', str_replace(', ', '.', $value));
     }
 
     /**
@@ -206,7 +206,8 @@ class GeoExtension extends DataExtension
      */
     public function setLongitude($value)
     {
-        return $this->owner->setField('Longitude', str_replace(',', '.', $value));
+        return $this->owner->setField('Longitude',
+                str_replace(', ', '.', $value));
     }
 
     /**
@@ -226,7 +227,8 @@ class GeoExtension extends DataExtension
      * @param string $format
      * @return string
      */
-    public function getFullAddress($format = null) {
+    public function getFullAddress($format = null)
+    {
         return $this->getFormattedAddress($format);
     }
 
@@ -253,15 +255,15 @@ class GeoExtension extends DataExtension
         $class = $this->owner->class;
         $table = ClassInfo::baseDataClass($class);
         $sql   = "SELECT ID,
-			( 6371 * acos(
-				cos( radians($lat))
-				* cos( radians( Lat ))
-				* cos( radians( Lon ) - radians($lng))
-				+ sin( radians($lat ))
-				* sin( radians( Lat ))
-			 )) AS distance
-			FROM ".$table."
-			HAVING distance < $distance ORDER BY distance";
+( 6371 * acos(
+cos( radians($lat))
+* cos( radians( Lat ))
+* cos( radians( Lon ) - radians($lng))
++ sin( radians($lat ))
+* sin( radians( Lat ))
+ )) AS distance
+FROM ".$table."
+HAVING distance < $distance ORDER BY distance";
         if ($limit) {
             $sql .= ' LIMIT '.$limit;
         }
