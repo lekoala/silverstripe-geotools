@@ -25,7 +25,7 @@ class BelgianProvinceField extends GroupedDropdownField
         if(!$this->dataValue()) {
             return;
         }
-		$record->setCastedField('AdministrativeArea', FrenchGeoUtils::getDepartementRegion($this->dataValue()));
+		$record->setCastedField('AdministrativeArea', BelgianGeoUtils::getProvinceRegion($this->dataValue()));
         return parent::saveInto($record);
     }
 }
