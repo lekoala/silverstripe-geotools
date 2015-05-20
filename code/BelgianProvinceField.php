@@ -1,20 +1,20 @@
 <?php
 
 /**
- * A simple list of french departments
+ * A simple list of belgian provinces
  *
  * @author Koala
  */
-class FrenchDepartmentField extends GroupedDropdownField
+class BelgianProvinceField extends GroupedDropdownField
 {
     public function __construct($name = 'SubAdministrativeArea', $title = null, $source = array(),
                                 $value = '', $form = null, $emptyString = null)
     {
         if($title === null) {
-            $title = _t('FrenchAdministrativeAreaField.TITLE','Département');
+            $title = _t('BelgianProvinceField.TITLE','Province');
         }
         if(empty($source)) {
-            $source = FrenchGeoUtils::getDepartmentsByRegion();
+            $source = BelgianGeoUtils::getProvincesByRegion();
         }
         parent::__construct($name, $title, $source, $value, $form, $emptyString);
         $this->setEmptyString(''); // Allow blank selection

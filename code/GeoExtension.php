@@ -347,7 +347,11 @@ HAVING distance < $distance ORDER BY distance";
         $street->setTitle(_t('GeoMemberExtension.STREET', 'Street'));
         $street->setFieldHolderTemplate('AddressFieldHolder');
 
-        $postcode = new TextField('PostalCode',
+        $postalCodeClass = 'TextField';
+        if(class_exists('PostCodeField')) {
+            $postalCodeClass = 'PostCodeField';
+        }
+        $postcode = new $postalCodeClass('PostalCode',
             _t('GeoMemberExtension.POSTCODE', 'Postal Code'), $postalCodeValue);
         $postcode->setAttribute('placeholder',
             _t('GeoMemberExtension.POSTCODEPLACEHOLDER', 'Postcode'));
@@ -364,6 +368,14 @@ HAVING distance < $distance ORDER BY distance";
         $fields->push($localitygroup = new FieldGroup($postcode, $locality));
         $localitygroup->setTitle(_t('GeoMemberExtension.LOCALITY', 'Locality'));
         $localitygroup->setFieldHolderTemplate('AddressFieldHolder');
+
+        // Support some countries administrative areas
+        if($this->owner->CountryCode == 'FR') {
+            $fields->push(new FrenchDepartmentField);
+        }
+        if($this->owner->CountryCode == 'BE') {
+            $fields->push(new BelgianProvinceField);
+        }
 
         $label     = _t('GeoMemberExtension.COUNTRY', 'Country');
         $fields->push($countrydd = new CountryDropdownField('CountryCode',
