@@ -348,7 +348,7 @@ HAVING distance < $distance ORDER BY distance";
         $street->setFieldHolderTemplate('AddressFieldHolder');
 
         $postalCodeClass = 'TextField';
-        if(class_exists('PostCodeField')) {
+        if (class_exists('PostCodeField')) {
             $postalCodeClass = 'PostCodeField';
         }
         $postcode = new $postalCodeClass('PostalCode',
@@ -370,10 +370,10 @@ HAVING distance < $distance ORDER BY distance";
         $localitygroup->setFieldHolderTemplate('AddressFieldHolder');
 
         // Support some countries administrative areas
-        if($this->owner->CountryCode == 'FR') {
+        if ($this->owner->CountryCode == 'FR') {
             $fields->push(new FrenchDepartmentField);
         }
-        if($this->owner->CountryCode == 'BE') {
+        if ($this->owner->CountryCode == 'BE') {
             $fields->push(new BelgianProvinceField);
         }
 
@@ -436,6 +436,31 @@ HAVING distance < $distance ORDER BY distance";
         $tzdd->setEmptyString('');
 
         return $fields;
+    }
+
+    /**
+     * Copy data from another dataobject
+     * 
+     * @param DataObjectInterface $dataobject
+     * @param bool $overwrite
+     * @return bool
+     */
+    public function copyAddressFrom(DataObjectInterface $dataobject,
+                                    $overwrite = false)
+    {
+        $updated = false;
+        foreach (self::$db as $field => $type) {
+            if ($field == 'GeolocateOnLocation') {
+                continue;
+            }
+            if ($overwrite || !$this->owner->$field) {
+                if ($this->owner->$field != $dataobject->$field) {
+                    $updated = true;
+                }
+                $this->owner->$field = $dataobject->$field;
+            }
+        }
+        return $updated;
     }
 
     /**
