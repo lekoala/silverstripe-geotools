@@ -93,18 +93,18 @@ class BelgianGeoUtils
      * @param string $key Name or Code
      * @return array
      */
-    public static function getProvincesByRegion($key = 'Name')
+    public static function getProvincesByRegion($key = 'Code')
     {
         $dep = self::getProvinces();
         $reg = self::getRegions();
 
         $proByReg = array();
-        foreach ($reg as $r) {
+        foreach ($reg as $c => $r) {
             $proByReg[$r] = array();
         }
 
         foreach ($dep as $d) {
-            $proByReg[$d['Region']][$d[$key]] = $d['Name'];
+            $proByReg[$reg[$d['Region']]][$d[$key]] = $d['Name'];
         }
 
         return $proByReg;

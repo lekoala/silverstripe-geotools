@@ -152,7 +152,7 @@ class FrenchGeoUtils
      * @param string $key Name or Code
      * @return array
      */
-    public static function getDepartmentsByRegion($key = 'Name')
+    public static function getDepartmentsByRegion($key = 'Code')
     {
         $dep = self::getDepartments();
         $reg = self::getRegions();
