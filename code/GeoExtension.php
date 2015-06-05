@@ -104,11 +104,11 @@ class GeoExtension extends DataExtension
     {
         $arr = array();
         if ($this->owner->SubAdministrativeArea) {
-            $arr[] = new \Geocoder\Model\AdminLevel(8,
+            $arr[] = new \Geocoder\Model\AdminLevel(1,
                 $this->owner->SubAdministrativeArea, '');
         }
         if ($this->owner->AdministrativeArea) {
-            $arr[] = new \Geocoder\Model\AdminLevel(4,
+            $arr[] = new \Geocoder\Model\AdminLevel(2,
                 $this->owner->AdministrativeArea, '');
         }
 
