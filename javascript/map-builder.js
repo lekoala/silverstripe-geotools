@@ -30,7 +30,6 @@ function buildLeafletMap(id) {
 		map.setView(new L.LatLng(lat, lon), zoom);
 		var markerOpts = {};
 		if (icon) {
-			console.log(iconHalfWidth);
 			icon = L.icon({
 				iconUrl: icon,
 				iconSize: defaultIconSize,
