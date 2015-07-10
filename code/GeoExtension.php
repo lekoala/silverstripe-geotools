@@ -593,8 +593,9 @@ HAVING distance < $distance ORDER BY distance";
     {
         $d = array();
         foreach ($arr as $a) {
+            /* @var $a LeafletMapItem */
             $a = $a->toLeafletMapItem();
-            if ($a) {
+            if ($a && $a->lat) {
                 $d[] = $a;
             }
         }
