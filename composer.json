@@ -13,7 +13,7 @@
 	"require":
 			{
 				"silverstripe/framework": "~3.1",
-				"willdurand/geocoder": "~3.0@dev",
+				"willdurand/geocoder": "^3.1@dev",
 				"geoip2/geoip2": "~2.0"
 			},
 	"extra": {
