@@ -278,10 +278,15 @@ class Geocoder extends Object
             return $result;
         } catch (Exception $e) {
             $level = SS_Log::WARN;
-            if ($e instanceof \Geocoder\Exception\NoResult) {
-                $level = SS_Log::DEBUG;
+            if ($e instanceof \Geocoder\Exception\CollectionIsEmpty) {
+                $level = false;
             }
-            SS_Log::log($e->getMessage(), $level);
+            if ($e instanceof \Geocoder\Exception\NoResult) {
+                $level = false;
+            }
+            if ($level) {
+                SS_Log::log($e->getMessage(), $level);
+            }
             self::$lastException = $e;
             return false;
         }
