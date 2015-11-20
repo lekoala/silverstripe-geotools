@@ -37,7 +37,12 @@ class StreetField extends FieldGroup
         $this->streetNameField   = $arg1;
         $this->streetNumberField = $arg2;
 
-        parent::__construct($arg1, $arg2);
+        $lang = i18n::get_lang_from_locale(i18n::get_locale());
+        if ($lang == 'fr') {
+            parent::__construct($arg2, $arg1);
+        } else {
+            parent::__construct($arg1, $arg2);
+        }
 
         $this->setTitle(_t('GeoMemberExtension.STREET', 'Street'));
         $this->setFieldHolderTemplate('AddressFieldHolder');
