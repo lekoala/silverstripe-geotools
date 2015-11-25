@@ -44,7 +44,7 @@ class StreetField extends FieldGroup
             parent::__construct($arg1, $arg2);
         }
 
-        $this->setTitle(_t('GeoMemberExtension.STREET', 'Street'));
+        $this->setTitle(_t('GeoMemberExtension.ADDRESSHEADER', 'Address'));
         $this->setFieldHolderTemplate('AddressFieldHolder');
     }
 
