@@ -92,7 +92,7 @@ class FrenchGeoUtils
             array("Code" => "47", "Name" => "Lot-et-Garonne", "Region" => "Aquitaine"),
             array("Code" => "48", "Name" => "Lozère", "Region" => "Languedoc"),
             array("Code" => "49", "Name" => "Maine-et-Loire", "Region" => "Pays-de-la-Loire"),
-            array("Code" => "50", "Name" => "Manche", "Region" => "Normandie"),
+            array("Code" => "50", "Name" => "Manche", "Region" => "Basse-Normandie"),
             array("Code" => "51", "Name" => "Marne", "Region" => "Champagne"),
             array("Code" => "53", "Name" => "Mayenne", "Region" => "Pays-de-la-Loire"),
             array("Code" => "54", "Name" => "Meurthe-et-Moselle", "Region" => "Lorraine"),
