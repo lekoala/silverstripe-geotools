@@ -7,13 +7,15 @@
  */
 class FrenchDepartmentField extends GroupedDropdownField
 {
-    public function __construct($name = 'SubAdministrativeArea', $title = null, $source = array(),
-                                $value = '', $form = null, $emptyString = null)
+
+    public function __construct($name = 'SubAdministrativeArea', $title = null,
+                                $source = array(), $value = '', $form = null,
+                                $emptyString = null)
     {
-        if($title === null) {
-            $title = _t('FrenchAdministrativeAreaField.TITLE','Département');
+        if ($title === null) {
+            $title = _t('FrenchAdministrativeAreaField.TITLE', 'Département');
         }
-        if(empty($source)) {
+        if (empty($source)) {
             $source = FrenchGeoUtils::getDepartmentsByRegion();
         }
         parent::__construct($name, $title, $source, $value, $form, $emptyString);
@@ -22,10 +24,11 @@ class FrenchDepartmentField extends GroupedDropdownField
 
     public function saveInto(\DataObjectInterface $record)
     {
-        if(!$this->dataValue()) {
+        if (!$this->dataValue()) {
             return;
         }
-		$record->setCastedField('AdministrativeArea', FrenchGeoUtils::getDepartementRegion($this->dataValue()));
+        $record->setCastedField('AdministrativeArea',
+            FrenchGeoUtils::getDepartementRegion($this->dataValue()));
         return parent::saveInto($record);
     }
 }
