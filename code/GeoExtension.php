@@ -584,6 +584,22 @@ HAVING distance < $distance ORDER BY distance";
     }
 
     /**
+     * Explain what the geocode function does
+     * @return string
+     */
+    public function GeocodeText()
+    {
+        if (!$this->canBeGeolocalized()) {
+            return 'Cannot be geolocalized (address is too short)';
+        }
+        if ($this->owner->GeolocateOnLocation) {
+            return 'Geolocate on location ' . $this->getLocation();
+        } else {
+            return 'Geolocate on address ' . $this->getFormattedAddress();
+        }
+    }
+
+    /**
      * Convenience method to convert a whole array
      * 
      * @param array $arr
