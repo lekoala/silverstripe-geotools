@@ -188,7 +188,7 @@ class GeoExtension extends DataExtension
      */
     public function getLocation()
     {
-        return $this->getFormattedAddress('%L, %C');
+        return $this->getFormattedAddress('%z %L, %C');
     }
 
     /**

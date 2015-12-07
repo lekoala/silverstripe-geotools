@@ -25,21 +25,21 @@ class GeolocateAllMembersTask extends BuildTask
         $refresh = $request->getVar('refresh');
 
         if ($refresh) {
-            $Members = Member::get();
-        } else {
-            $Members = Member::get()->filter(array('Latitude' => 0));
+            DB::alteration_message("Resetting all members location");
+            DB::query('UPDATE Member SET Latitude = 0, Longitude = 0');
         }
+
+        $Members = Member::get()->filter(array('Latitude' => 0));
 
         foreach ($Members as $Member) {
             DB::alteration_message('Processing member #'.$Member->ID.' - '.$Member->getTitle());
-            if ($Member->shouldBeGeolocalized() || $refresh) {
-                if ($Member->Latitude) {
-                    DB::alteration_message('Should update current location');
-                } else {
-                    DB::alteration_message('Should be geolocalized');
-                }
+            if (!$Member->Latitude) {
                 if ($Member->canBeGeolocalized()) {
                     DB::alteration_message($Member->GeocodeText());
+
+                    if(!$Member->CountryCode) {
+                        DB::alteration_message("Warning ! This member has no country code","error");
+                    }
 
                     /* @var $res Geocoder\Model\Address */
                     $res = $Member->Geocode();
@@ -55,7 +55,7 @@ class GeolocateAllMembersTask extends BuildTask
                     DB::alteration_message('Cannot be geolocalized', 'error');
                 }
             } else {
-                DB::alteration_message('Should not be geolocalized', 'error');
+                DB::alteration_message('Already geolocalized', 'error');
             }
         }
     }

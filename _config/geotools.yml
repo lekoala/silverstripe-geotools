@@ -11,7 +11,7 @@ Geocoder:
   # or use whatver makes sense to you
   local_ip: '68.145.37.34'
   local_address: 'Suite 800, 630 - 3Rd Ave. Sw, Calgary, AB, T2P-4L4, CA'
-  default_format: '%S %n, %z %L'
+  default_format: '%S %n, %z %L, %C'
   cache_enabled: true
   # https://github.com/egeloen/ivory-http-adapter
   adapter: '\Ivory\HttpAdapter\CurlHttpAdapter'
