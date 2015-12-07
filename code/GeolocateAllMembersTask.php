@@ -31,9 +31,13 @@ class GeolocateAllMembersTask extends BuildTask
         }
 
         foreach ($Members as $Member) {
-            DB::alteration_message('Processing member #'.$Member->ID . ' - ' . $Member->getTitle());
-            if ($Member->shouldBeGeolocalized()) {
-                DB::alteration_message('Should be geolocalized');
+            DB::alteration_message('Processing member #'.$Member->ID.' - '.$Member->getTitle());
+            if ($Member->shouldBeGeolocalized() || $refresh) {
+                if ($Member->Latitude) {
+                    DB::alteration_message('Should update current location');
+                } else {
+                    DB::alteration_message('Should be geolocalized');
+                }
                 if ($Member->canBeGeolocalized()) {
                     DB::alteration_message($Member->GeocodeText());
 
@@ -41,7 +45,8 @@ class GeolocateAllMembersTask extends BuildTask
                     $res = $Member->Geocode();
 
                     if ($res) {
-                        DB::alteration_message('Geocode success on ' . $res->getLatitude() . ',' . $res->getLongitude() . ' : ' . $res->getStreetNumber() . ', ' . $res->getStreetName() . ' ' . $res->getPostalCode() . ' ' . $res->getLocality() . ' ' . $res->getCountry(), 'created');
+                        DB::alteration_message('Geocode success on '.$res->getLatitude().','.$res->getLongitude().' : '.$res->getStreetNumber().', '.$res->getStreetName().' '.$res->getPostalCode().' '.$res->getLocality().' '.$res->getCountry(),
+                            'created');
                         $Member->write();
                     } else {
                         DB::alteration_message('Geocode error', 'error');
