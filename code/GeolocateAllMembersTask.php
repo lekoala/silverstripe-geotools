@@ -26,7 +26,6 @@ class GeolocateAllMembersTask extends BuildTask
 
         if ($refresh) {
             $Members = Member::get();
-            ;
         } else {
             $Members = Member::get()->filter(array('Latitude' => 0));
         }
