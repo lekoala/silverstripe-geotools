@@ -12,7 +12,7 @@ class GeoExtension extends DataExtension
     private static $db                  = array(
         'Latitude' => 'Float(10,6)',
         'Longitude' => 'Float(10,6)',
-        'StreetNumber' => 'Varchar(255)',
+        'StreetNumber' => 'Varchar(50)',
         'StreetName' => 'Varchar(255)',
         'PostalCode' => 'Varchar(32)',
         'Locality' => 'Varchar(255)',
