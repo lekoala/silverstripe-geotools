@@ -10,10 +10,10 @@ class BelgianProvinceField extends GroupedDropdownField
     public function __construct($name = 'SubAdministrativeArea', $title = null, $source = array(),
                                 $value = '', $form = null, $emptyString = null)
     {
-        if($title === null) {
-            $title = _t('BelgianProvinceField.TITLE','Province');
+        if ($title === null) {
+            $title = _t('BelgianProvinceField.TITLE', 'Province');
         }
-        if(empty($source)) {
+        if (empty($source)) {
             $source = BelgianGeoUtils::getProvincesByRegion();
         }
         parent::__construct($name, $title, $source, $value, $form, $emptyString);
@@ -22,10 +22,10 @@ class BelgianProvinceField extends GroupedDropdownField
 
     public function saveInto(\DataObjectInterface $record)
     {
-        if(!$this->dataValue()) {
+        if (!$this->dataValue()) {
             return;
         }
-		$record->setCastedField('AdministrativeArea', BelgianGeoUtils::getProvinceRegion($this->dataValue()));
+        $record->setCastedField('AdministrativeArea', BelgianGeoUtils::getProvinceRegion($this->dataValue()));
         return parent::saveInto($record);
     }
 }

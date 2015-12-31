@@ -49,7 +49,7 @@ class GeoExtension extends DataExtension
      * 
      * @return string
      */
-    function getCountryFromCode()
+    public function getCountryFromCode()
     {
         return self::convertCountryCodeToName($this->owner->CountryCode);
     }
@@ -74,7 +74,7 @@ class GeoExtension extends DataExtension
      * 
      * @return string
      */
-    function getCountry()
+    public function getCountry()
     {
         if ($this->owner->CountryName) {
             return $this->owner->CountryName;
@@ -89,7 +89,7 @@ class GeoExtension extends DataExtension
      *
      * @return \Geocoder\Model\Country
      */
-    function getCountryObject()
+    public function getCountryObject()
     {
         return new \Geocoder\Model\Country($this->getCountry(),
             $this->owner->CountryCode);
@@ -100,7 +100,7 @@ class GeoExtension extends DataExtension
      *
      * @return \Geocoder\Model\AdminLevelCollection
      */
-    function getAdminLevelObject()
+    public function getAdminLevelObject()
     {
         $arr = array();
         if ($this->owner->SubAdministrativeArea) {
@@ -120,7 +120,7 @@ class GeoExtension extends DataExtension
      *
      * @return \Geocoder\Model\Address
      */
-    function getAddress()
+    public function getAddress()
     {
         return new \Geocoder\Model\Address($this->getCoordinatesObjet(), null,
             $this->owner->StreetNumber, $this->owner->StreetName,
@@ -135,7 +135,7 @@ class GeoExtension extends DataExtension
      * @param string $format
      * @return string
      */
-    function getFormattedAddress($format = null)
+    public function getFormattedAddress($format = null)
     {
         return Geocoder::formatAddress($this->getAddress(), $format);
     }
@@ -145,7 +145,7 @@ class GeoExtension extends DataExtension
      *
      * @return array
      */
-    function getCoordinates()
+    public function getCoordinates()
     {
         return array($this->owner->Latitude, $this->owner->Longitude);
     }
@@ -155,7 +155,7 @@ class GeoExtension extends DataExtension
      *
      * @return \Geocoder\Model\Coordinates
      */
-    function getCoordinatesObjet()
+    public function getCoordinatesObjet()
     {
         return new \Geocoder\Model\Coordinates($this->owner->Latitude,
             $this->owner->Longitude);
@@ -166,7 +166,7 @@ class GeoExtension extends DataExtension
      *
      * @return string
      */
-    function getCity()
+    public function getCity()
     {
         return $this->owner->Locality;
     }
@@ -495,7 +495,9 @@ HAVING distance < $distance ORDER BY distance";
         $changed = $this->owner->getChangedFields(false, $level);
 
         foreach ($fields as $field) {
-            if (array_key_exists($field, $changed)) return true;
+            if (array_key_exists($field, $changed)) {
+                return true;
+            }
         }
 
         return false;

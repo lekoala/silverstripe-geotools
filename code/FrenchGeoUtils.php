@@ -19,7 +19,7 @@ class FrenchGeoUtils
      */
     public static function getRegions()
     {
-        $regions = array_map(function($i) {
+        $regions = array_map(function ($i) {
             return $i['Region'];
         }, self::getDepartments());
         asort($regions);

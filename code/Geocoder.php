@@ -136,11 +136,11 @@ class Geocoder extends Object
             $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
 
             $ip = array_pop($ip);
-        } else if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } else if (!empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
+        } elseif (!empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
-        } else if (!empty($_SERVER['REMOTE_ADDR'])) {
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -164,7 +164,7 @@ class Geocoder extends Object
      * @param bool $refresh_cache
      * @return Geocoder\Model\Address
      */
-    static public function geocodeIp($ip = null, $type = 'city',
+    public static function geocodeIp($ip = null, $type = 'city',
                                      $refresh_cache = false)
     {
         if ($ip === null) {
@@ -209,7 +209,7 @@ class Geocoder extends Object
      * @param bool $refresh_cache
      * @return Geocoder\Model\Address
      */
-    static public function reverseGeocode($latitude, $longitude,
+    public static function reverseGeocode($latitude, $longitude,
                                           $refresh_cache = false)
     {
         // Cache support
@@ -252,7 +252,7 @@ class Geocoder extends Object
      * @param bool $refresh_cache
      * @return Geocoder\Model\Address
      */
-    static public function geocodeAddress($address, $refresh_cache = false)
+    public static function geocodeAddress($address, $refresh_cache = false)
     {
         // Cache support
         if (self::config()->cache_enabled) {
@@ -298,7 +298,7 @@ class Geocoder extends Object
      * @param string $format
      * @return string
      */
-    static public function formatAddress(\Geocoder\Model\Address $address,
+    public static function formatAddress(\Geocoder\Model\Address $address,
                                          $format = null)
     {
         if ($format === null) {
@@ -314,7 +314,7 @@ class Geocoder extends Object
      * @param string $address
      * @return array|boolean
      */
-    static public function simpleGeocode($address)
+    public static function simpleGeocode($address)
     {
         $url    = sprintf('http://maps.google.com/maps?output=js&q=%s',
             rawurlencode($address));

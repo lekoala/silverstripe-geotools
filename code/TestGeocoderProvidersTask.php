@@ -9,7 +9,7 @@ class TestGeocoderProvidersTask extends BuildTask
 {
     protected $description = 'Run a geocoding of a demo address with all your defined providers';
 
-    function run($request)
+    public function run($request)
     {
         // Try to geocode a sample address
         $address = Geocoder::config()->local_address;
@@ -51,8 +51,7 @@ class TestGeocoderProvidersTask extends BuildTask
                 DB::alteration_message("Provider $name failed to geocode address",
                     'error');
                 DB::alteration_message($ex->getMessage(), 'error');
-            }
-            catch (\Exception $ex) {
+            } catch (\Exception $ex) {
                 DB::alteration_message($ex->getMessage(), 'error');
             }
         }
