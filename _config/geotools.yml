@@ -29,9 +29,9 @@ Geocoder:
     country: 'geotools/ressources/GeoLite2-Country.mmdb'
 LeafletMap:
   # view more at http://leaflet-extras.github.io/leaflet-providers/preview/
-  tilelayer: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'
+  tilelayer: 'https://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png'
   tile_options:
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+    attribution: 'Tiles &copy; <a href="http://www.mapquest.com/" target="_blank">MapQuest</a>'
     maxZoom: 18
     detectRetina: true
   default_zoom: 12
