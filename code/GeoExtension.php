@@ -137,6 +137,9 @@ class GeoExtension extends DataExtension
      */
     function getFormattedAddress($format = null)
     {
+        if (!$this->owner->StreetName && !$this->owner->Locality) {
+            return '';
+        }
         return Geocoder::formatAddress($this->getAddress(), $format);
     }
 
@@ -593,9 +596,9 @@ HAVING distance < $distance ORDER BY distance";
             return 'Cannot be geolocalized (address is too short)';
         }
         if ($this->owner->GeolocateOnLocation) {
-            return 'Geolocate on location ' . $this->getLocation();
+            return 'Geolocate on location '.$this->getLocation();
         } else {
-            return 'Geolocate on address ' . $this->getFormattedAddress();
+            return 'Geolocate on address '.$this->getFormattedAddress();
         }
     }
 
