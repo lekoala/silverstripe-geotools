@@ -195,7 +195,7 @@ class Geocoder extends Object
             }
             return $result;
         } catch (Exception $e) {
-            SS_Log::log($e->getMessage(), SS_Log::WARN);
+            SS_Log::log($e->getMessage(), SS_Log::DEBUG);
             self::$lastException = $e;
             return false;
         }
