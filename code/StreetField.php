@@ -31,7 +31,7 @@ class StreetField extends FieldGroup
             $arg2 = new TextField('StreetNumber', '');
             $arg2->setAttribute('placeholder',
                 _t('GeoMemberExtension.STREETNUMBER'));
-            $arg2->setAttribute('style', 'width:80px');
+            $arg2->setAttribute('style', 'width:75px');
         }
 
         $this->streetNameField   = $arg1;
