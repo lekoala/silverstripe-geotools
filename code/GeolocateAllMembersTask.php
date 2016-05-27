@@ -15,7 +15,7 @@ class GeolocateAllMembersTask extends BuildTask
      * 
      * @param SS_HTTPRequest $request
      */
-    function run($request)
+    public function run($request)
     {
         increase_time_limit_to();
 
@@ -37,8 +37,8 @@ class GeolocateAllMembersTask extends BuildTask
                 if ($Member->canBeGeolocalized()) {
                     DB::alteration_message($Member->GeocodeText());
 
-                    if(!$Member->CountryCode) {
-                        DB::alteration_message("Warning ! This member has no country code","error");
+                    if (!$Member->CountryCode) {
+                        DB::alteration_message("Warning ! This member has no country code", "error");
                     }
 
                     /* @var $res Geocoder\Model\Address */
