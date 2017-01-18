@@ -7,14 +7,15 @@
  */
 class CountriesHelper
 {
-    const SHORT_NAME    = 'ShortName';
+
+    const SHORT_NAME = 'ShortName';
     const OFFICIAL_NAME = 'OfficialName';
-    const ISO3          = 'ISO3';
-    const ISO2          = 'ISO2';
-    const UNI           = 'UNI';
-    const UNDP          = 'UNDP';
-    const FAOSTAT       = 'FAOSTAT';
-    const GAUL          = 'GAUL';
+    const ISO3 = 'ISO3';
+    const ISO2 = 'ISO2';
+    const UNI = 'UNI';
+    const UNDP = 'UNDP';
+    const FAOSTAT = 'FAOSTAT';
+    const GAUL = 'GAUL';
 
     private $file;
     private $data;
@@ -27,7 +28,7 @@ class CountriesHelper
         if ($file) {
             $this->setFile($file);
         } else {
-            $this->setFile(dirname(__DIR__).'/ressources/countries.csv');
+            $this->setFile(dirname(__DIR__) . '/ressources/countries.csv');
         }
     }
 
@@ -67,8 +68,8 @@ class CountriesHelper
         if (!is_readable($this->file)) {
             throw new Exception("File {$this->file} is not readable");
         }
-        $file    = fopen($this->file, "r");
-        $arr     = array();
+        $file = fopen($this->file, "r");
+        $arr = array();
         $headers = fgetcsv($file);
         while (!feof($file)) {
             $arr[] = array_combine($headers, fgetcsv($file));

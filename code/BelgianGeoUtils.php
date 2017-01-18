@@ -7,8 +7,9 @@
  */
 class BelgianGeoUtils
 {
-    const CODE   = 'Code';
-    const NAME   = 'Name';
+
+    const CODE = 'Code';
+    const NAME = 'Name';
     const REGION = 'Region';
 
     /**
@@ -33,26 +34,19 @@ class BelgianGeoUtils
     public static function getProvinces()
     {
         return array(
-            array('Code' => 'BRU', 'Name' => _t('BelgianGeoUtils.BRU',
-                    'Bruxelles-Capitale'), 'Region' => 'BE-BRU'),
-            array('Code' => 'VAN', 'Name' => _t('BelgianGeoUtils.VAN',
-                    'Antwerpen'), 'Region' => 'BE-VLG'),
+            array('Code' => 'BRU', 'Name' => _t('BelgianGeoUtils.BRU', 'Bruxelles-Capitale'), 'Region' => 'BE-BRU'),
+            array('Code' => 'VAN', 'Name' => _t('BelgianGeoUtils.VAN', 'Antwerpen'), 'Region' => 'BE-VLG'),
             array('Code' => 'VLI', 'Name' => _t('BelgianGeoUtils.VLI', 'Limburg'),
                 'Region' => 'BE-VLG'),
-            array('Code' => 'VOV', 'Name' => _t('BelgianGeoUtils.VOV',
-                    'Oost-Vlaanderen'), 'Region' => 'BE-VLG'),
-            array('Code' => 'VBR', 'Name' => _t('BelgianGeoUtils.VBR',
-                    'Vlaams-Brabant'), 'Region' => 'BE-VLG'),
-            array('Code' => 'VWV', 'Name' => _t('BelgianGeoUtils.VWV',
-                    'West-Vlaanderen'), 'Region' => 'BE-VLG'),
-            array('Code' => 'WBR', 'Name' => _t('BelgianGeoUtils.WBR',
-                    'Brabant wallon'), 'Region' => 'BE-WAL'),
+            array('Code' => 'VOV', 'Name' => _t('BelgianGeoUtils.VOV', 'Oost-Vlaanderen'), 'Region' => 'BE-VLG'),
+            array('Code' => 'VBR', 'Name' => _t('BelgianGeoUtils.VBR', 'Vlaams-Brabant'), 'Region' => 'BE-VLG'),
+            array('Code' => 'VWV', 'Name' => _t('BelgianGeoUtils.VWV', 'West-Vlaanderen'), 'Region' => 'BE-VLG'),
+            array('Code' => 'WBR', 'Name' => _t('BelgianGeoUtils.WBR', 'Brabant wallon'), 'Region' => 'BE-WAL'),
             array('Code' => 'WHT', 'Name' => _t('BelgianGeoUtils.WHT', 'Hainaut'),
                 'Region' => 'BE-WAL'),
             array('Code' => 'WLG', 'Name' => _t('BelgianGeoUtils.WLG', 'Liège'),
                 'Region' => 'BE-WAL'),
-            array('Code' => 'WLX', 'Name' => _t('BelgianGeoUtils.WLX',
-                    'Luxembourg'), 'Region' => 'BE-WAL'),
+            array('Code' => 'WLX', 'Name' => _t('BelgianGeoUtils.WLX', 'Luxembourg'), 'Region' => 'BE-WAL'),
             array('Code' => 'WNA', 'Name' => _t('BelgianGeoUtils.WNA', 'Namur'),
                 'Region' => 'BE-WAL'),
         );

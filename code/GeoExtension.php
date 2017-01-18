@@ -9,7 +9,8 @@
  */
 class GeoExtension extends DataExtension
 {
-    private static $db                  = array(
+
+    private static $db = array(
         'Latitude' => 'Float(10,6)',
         'Longitude' => 'Float(10,6)',
         'StreetNumber' => 'Varchar(50)',
@@ -39,8 +40,7 @@ class GeoExtension extends DataExtension
         }
         $countries = Zend_Locale::getTranslationList('territory', $locale, 2);
         asort($countries, SORT_LOCALE_STRING);
-        unset($countries['SU'], $countries['ZZ'], $countries['VD'],
-            $countries['DD']);
+        unset($countries['SU'], $countries['ZZ'], $countries['VD'], $countries['DD']);
         return $countries;
     }
 
@@ -65,8 +65,7 @@ class GeoExtension extends DataExtension
         if (!$code) {
             return;
         }
-        return Zend_Locale::getTranslation($code, 'territory',
-                i18n::get_locale());
+        return Zend_Locale::getTranslation($code, 'territory', i18n::get_locale());
     }
 
     /**
@@ -91,8 +90,7 @@ class GeoExtension extends DataExtension
      */
     public function getCountryObject()
     {
-        return new \Geocoder\Model\Country($this->getCountry(),
-            $this->owner->CountryCode);
+        return new \Geocoder\Model\Country($this->getCountry(), $this->owner->CountryCode);
     }
 
     /**
@@ -104,12 +102,10 @@ class GeoExtension extends DataExtension
     {
         $arr = array();
         if ($this->owner->SubAdministrativeArea) {
-            $arr[] = new \Geocoder\Model\AdminLevel(1,
-                $this->owner->SubAdministrativeArea, '');
+            $arr[] = new \Geocoder\Model\AdminLevel(1, $this->owner->SubAdministrativeArea, '');
         }
         if ($this->owner->AdministrativeArea) {
-            $arr[] = new \Geocoder\Model\AdminLevel(2,
-                $this->owner->AdministrativeArea, '');
+            $arr[] = new \Geocoder\Model\AdminLevel(2, $this->owner->AdministrativeArea, '');
         }
 
         return new \Geocoder\Model\AdminLevelCollection($arr);
@@ -122,11 +118,7 @@ class GeoExtension extends DataExtension
      */
     public function getAddress()
     {
-        return new \Geocoder\Model\Address($this->getCoordinatesObjet(), null,
-            $this->owner->StreetNumber, $this->owner->StreetName,
-            $this->owner->PostalCode, $this->owner->Locality,
-            $this->owner->SubLocality, $this->getAdminLevelObject(),
-            $this->getCountryObject(), $this->owner->Timezone);
+        return new \Geocoder\Model\Address($this->getCoordinatesObjet(), null, $this->owner->StreetNumber, $this->owner->StreetName, $this->owner->PostalCode, $this->owner->Locality, $this->owner->SubLocality, $this->getAdminLevelObject(), $this->getCountryObject(), $this->owner->Timezone);
     }
 
     /**
@@ -160,8 +152,7 @@ class GeoExtension extends DataExtension
      */
     public function getCoordinatesObjet()
     {
-        return new \Geocoder\Model\Coordinates($this->owner->Latitude,
-            $this->owner->Longitude);
+        return new \Geocoder\Model\Coordinates($this->owner->Latitude, $this->owner->Longitude);
     }
 
     /**
@@ -209,8 +200,7 @@ class GeoExtension extends DataExtension
      */
     public function setLongitude($value)
     {
-        return $this->owner->setField('Longitude',
-                str_replace(', ', '.', $value));
+        return $this->owner->setField('Longitude', str_replace(', ', '.', $value));
     }
 
     /**
@@ -257,7 +247,7 @@ class GeoExtension extends DataExtension
     {
         $class = $this->owner->class;
         $table = ClassInfo::baseDataClass($class);
-        $sql   = "SELECT ID,
+        $sql = "SELECT ID,
 ( 6371 * acos(
 cos( radians($lat))
 * cos( radians( Lat ))
@@ -265,13 +255,13 @@ cos( radians($lat))
 + sin( radians($lat ))
 * sin( radians( Lat ))
  )) AS distance
-FROM ".$table."
+FROM " . $table . "
 HAVING distance < $distance ORDER BY distance";
         if ($limit) {
-            $sql .= ' LIMIT '.$limit;
+            $sql .= ' LIMIT ' . $limit;
         }
         $records = DB::query($sql);
-        $ids     = array();
+        $ids = array();
         foreach ($records as $r) {
             $ids[] = $r['ID'];
         }
@@ -308,8 +298,8 @@ HAVING distance < $distance ORDER BY distance";
     {
         $fields = new CompositeField;
 
-        $localityValue   = $this->owner->Locality;
-        $countryCode     = $this->owner->CountryCode;
+        $localityValue = $this->owner->Locality;
+        $countryCode = $this->owner->CountryCode;
         $postalCodeValue = $this->owner->PostalCode;
 
         if ((!$localityValue || !$countryCode || !$postalCodeValue) && $geoDefaults) {
@@ -327,24 +317,18 @@ HAVING distance < $distance ORDER BY distance";
             }
         }
 
-        $longWidth  = 300;
+        $longWidth = 300;
         $shortWidth = 80;
 
-        $streetname = new TextField('StreetName',
-            _t('GeoMemberExtension.STREETNAME', 'Street Name'),
-            $this->owner->StreetName);
-        $streetname->setAttribute('placeholder',
-            _t('GeoMemberExtension.STREETNAME', 'Street Name'));
+        $streetname = new TextField('StreetName', _t('GeoMemberExtension.STREETNAME', 'Street Name'), $this->owner->StreetName);
+        $streetname->setAttribute('placeholder', _t('GeoMemberExtension.STREETNAME', 'Street Name'));
         $streetname->setTitle('');
-        $streetname->setAttribute('style', 'width:'.$longWidth.'px');
+        $streetname->setAttribute('style', 'width:' . $longWidth . 'px');
 
-        $streetnumber = new TextField('StreetNumber',
-            _t('GeoMemberExtension.STREETNUMBER', 'Street Number'),
-            $this->owner->StreetNumber);
-        $streetnumber->setAttribute('placeholder',
-            _t('GeoMemberExtension.STREETNUMBERPLACEHOLDER', 'N°'));
+        $streetnumber = new TextField('StreetNumber', _t('GeoMemberExtension.STREETNUMBER', 'Street Number'), $this->owner->StreetNumber);
+        $streetnumber->setAttribute('placeholder', _t('GeoMemberExtension.STREETNUMBERPLACEHOLDER', 'N°'));
         $streetnumber->setTitle('');
-        $streetnumber->setAttribute('style', 'width:'.$shortWidth.'px');
+        $streetnumber->setAttribute('style', 'width:' . $shortWidth . 'px');
 
         $fields->push($street = new FieldGroup($streetname, $streetnumber));
         $street->setTitle(_t('GeoMemberExtension.STREET', 'Street'));
@@ -354,19 +338,15 @@ HAVING distance < $distance ORDER BY distance";
         if (class_exists('PostCodeField')) {
             $postalCodeClass = 'PostCodeField';
         }
-        $postcode = new $postalCodeClass('PostalCode',
-            _t('GeoMemberExtension.POSTCODE', 'Postal Code'), $postalCodeValue);
-        $postcode->setAttribute('placeholder',
-            _t('GeoMemberExtension.POSTCODEPLACEHOLDER', 'Postcode'));
+        $postcode = new $postalCodeClass('PostalCode', _t('GeoMemberExtension.POSTCODE', 'Postal Code'), $postalCodeValue);
+        $postcode->setAttribute('placeholder', _t('GeoMemberExtension.POSTCODEPLACEHOLDER', 'Postcode'));
         $postcode->setTitle('');
-        $postcode->setAttribute('style', 'width:'.$shortWidth.'px');
+        $postcode->setAttribute('style', 'width:' . $shortWidth . 'px');
 
-        $locality = new TextField('Locality',
-            _t('GeoMemberExtension.CITY', 'City'), $localityValue);
-        $locality->setAttribute('placeholder',
-            _t('GeoMemberExtension.CITY', 'City'));
+        $locality = new TextField('Locality', _t('GeoMemberExtension.CITY', 'City'), $localityValue);
+        $locality->setAttribute('placeholder', _t('GeoMemberExtension.CITY', 'City'));
         $locality->setTitle('');
-        $locality->setAttribute('style', 'width:'.$longWidth.'px');
+        $locality->setAttribute('style', 'width:' . $longWidth . 'px');
 
         $fields->push($localitygroup = new FieldGroup($postcode, $locality));
         $localitygroup->setTitle(_t('GeoMemberExtension.LOCALITY', 'Locality'));
@@ -380,10 +360,8 @@ HAVING distance < $distance ORDER BY distance";
             $fields->push(new BelgianProvinceField);
         }
 
-        $label     = _t('GeoMemberExtension.COUNTRY', 'Country');
-        $fields->push($countrydd = new CountryDropdownField('CountryCode',
-            _t('GeoMemberExtension.COUNTRY', 'Country'), self::getCountryList(),
-            $countryCode));
+        $label = _t('GeoMemberExtension.COUNTRY', 'Country');
+        $fields->push($countrydd = new CountryDropdownField('CountryCode', _t('GeoMemberExtension.COUNTRY', 'Country'), self::getCountryList(), $countryCode));
         $countrydd->setEmptyString('');
 
         return $fields;
@@ -396,25 +374,17 @@ HAVING distance < $distance ORDER BY distance";
     {
         $fields = new FieldList;
 
-        $fields->push(new HeaderField('AddressHeader',
-            _t('GeoMemberExtension.ADDRESSHEADER', 'Address')));
+        $fields->push(new HeaderField('AddressHeader', _t('GeoMemberExtension.ADDRESSHEADER', 'Address')));
         $fields->push($this->getAddressFields(), 'Address');
 
-        $fields->push(new HeaderField('GeoHeader',
-            _t('GeoMemberExtension.GEOHEADER', 'Geo data')));
+        $fields->push(new HeaderField('GeoHeader', _t('GeoMemberExtension.GEOHEADER', 'Geo data')));
 
-        $latitude = new TextField('Latitude',
-            _t('GeoMemberExtension.LATITUDE', 'Latitude'),
-            $this->owner->Latitude ? $this->owner->Latitude : null);
-        $latitude->setAttribute('placeholder',
-            _t('GeoMemberExtension.LATITUDE', 'Latitude'));
+        $latitude = new TextField('Latitude', _t('GeoMemberExtension.LATITUDE', 'Latitude'), $this->owner->Latitude ? $this->owner->Latitude : null);
+        $latitude->setAttribute('placeholder', _t('GeoMemberExtension.LATITUDE', 'Latitude'));
         $latitude->setTitle('');
 
-        $longitude = new TextField('Longitude',
-            _t('GeoMemberExtension.LONGITUDE', 'Longitude'),
-            $this->owner->Longitude ? $this->owner->Longitude : null);
-        $longitude->setAttribute('placeholder',
-            _t('GeoMemberExtension.LONGITUDE', 'Longitude'));
+        $longitude = new TextField('Longitude', _t('GeoMemberExtension.LONGITUDE', 'Longitude'), $this->owner->Longitude ? $this->owner->Longitude : null);
+        $longitude->setAttribute('placeholder', _t('GeoMemberExtension.LONGITUDE', 'Longitude'));
         $longitude->setTitle('');
 
         $coords = new FieldGroup($latitude, $longitude);
@@ -424,18 +394,14 @@ HAVING distance < $distance ORDER BY distance";
 
         $fields->push($coords);
 
-        $fields->push(new CheckboxField('GeolocateOnLocation',
-            _t('GeoMemberExtension.GEOLOCATEONLOCATION',
-                'Only show location instead of full address')));
+        $fields->push(new CheckboxField('GeolocateOnLocation', _t('GeoMemberExtension.GEOLOCATEONLOCATION', 'Only show location instead of full address')));
 
-        $tz       = timezone_identifiers_list();
+        $tz = timezone_identifiers_list();
         $timezone = $this->owner->Timezone;
         if (!$timezone) {
             $timezone = date_default_timezone_get();
         }
-        $fields->push($tzdd = new DropdownField('Timezone',
-            _t('GeoMemberExtension.TIMEZONE', 'Timezone'),
-            array_combine($tz, $tz), $timezone));
+        $fields->push($tzdd = new DropdownField('Timezone', _t('GeoMemberExtension.TIMEZONE', 'Timezone'), array_combine($tz, $tz), $timezone));
         $tzdd->setEmptyString('');
 
         return $fields;
@@ -448,8 +414,7 @@ HAVING distance < $distance ORDER BY distance";
      * @param bool $overwrite
      * @return bool
      */
-    public function copyAddressFrom(DataObjectInterface $dataobject,
-                                    $overwrite = false)
+    public function copyAddressFrom(DataObjectInterface $dataobject, $overwrite = false)
     {
         $updated = false;
         foreach (self::$db as $field => $type) {
@@ -540,25 +505,24 @@ HAVING distance < $distance ORDER BY distance";
         if (!$this->owner->Latitude) {
             return false;
         }
-        $results = Geocoder::reverseGeocode($this->owner->Latitude,
-                $this->owner->Longitude);
+        $results = Geocoder::reverseGeocode($this->owner->Latitude, $this->owner->Longitude);
 
         if ($results) {
             $this->owner->StreetNumber = $results->getStreetNumber();
-            $this->owner->StreetName   = $results->getStreetName();
-            $this->owner->PostalCode   = $results->getPostalCode();
-            $this->owner->Locality     = $results->getLocality();
-            $this->owner->SubLocality  = $results->getSubLocality();
-            $this->owner->CountryName  = $results->getCountry();
-            $this->owner->CountryCode  = $results->getCountryCode();
+            $this->owner->StreetName = $results->getStreetName();
+            $this->owner->PostalCode = $results->getPostalCode();
+            $this->owner->Locality = $results->getLocality();
+            $this->owner->SubLocality = $results->getSubLocality();
+            $this->owner->CountryName = $results->getCountry();
+            $this->owner->CountryCode = $results->getCountryCode();
             if (count($results->getAdminLevels())) {
                 $all = $results->getAdminLevels();
 
                 /* @var \Geocoder\Model\AdminLevel $firstLevel */
-                $firstLevel                      = $all[0];
+                $firstLevel = $all[0];
                 $this->owner->AdministrativeArea = $firstLevel->getName();
                 if (count($all) > 1) {
-                    $secondLevel                        = $all[1];
+                    $secondLevel = $all[1];
                     $this->owner->SubAdministrativeArea = $secondLevel->getName();
                 }
             }
@@ -581,7 +545,7 @@ HAVING distance < $distance ORDER BY distance";
             $result = Geocoder::geocodeAddress($this->getFormattedAddress());
         }
         if ($result) {
-            $this->owner->Latitude  = $result->getLatitude();
+            $this->owner->Latitude = $result->getLatitude();
             $this->owner->Longitude = $result->getLongitude();
             return $result;
         }
@@ -598,9 +562,9 @@ HAVING distance < $distance ORDER BY distance";
             return 'Cannot be geolocalized (address is too short)';
         }
         if ($this->owner->GeolocateOnLocation) {
-            return 'Geolocate on location '.$this->getLocation();
+            return 'Geolocate on location ' . $this->getLocation();
         } else {
-            return 'Geolocate on address '.$this->getFormattedAddress();
+            return 'Geolocate on address ' . $this->getFormattedAddress();
         }
     }
 
@@ -629,7 +593,7 @@ HAVING distance < $distance ORDER BY distance";
      */
     public function toLeafletMapItem()
     {
-        $item      = new LeafletMapItem;
+        $item = new LeafletMapItem;
         $item->lat = $this->owner->Latitude;
         $item->lon = $this->owner->Longitude;
         if ($this->owner->Number) {
@@ -641,7 +605,7 @@ HAVING distance < $distance ORDER BY distance";
             $item->popup = $this->owner->Title;
         }
         if ($this->owner->hasMethod('getLeafletCategory')) {
-            $category             = $this->owner->getLeafletCategory();
+            $category = $this->owner->getLeafletCategory();
             $item->category_title = $category->title;
             $item->category_image = $category->image;
         }

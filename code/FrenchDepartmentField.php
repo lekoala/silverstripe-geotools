@@ -8,9 +8,7 @@
 class FrenchDepartmentField extends GroupedDropdownField
 {
 
-    public function __construct($name = 'SubAdministrativeArea', $title = null,
-                                $source = array(), $value = '', $form = null,
-                                $emptyString = null)
+    public function __construct($name = 'SubAdministrativeArea', $title = null, $source = array(), $value = '', $form = null, $emptyString = null)
     {
         if ($title === null) {
             $title = _t('FrenchAdministrativeAreaField.TITLE', 'Département');
@@ -27,8 +25,7 @@ class FrenchDepartmentField extends GroupedDropdownField
         if (!$this->dataValue()) {
             return;
         }
-        $record->setCastedField('AdministrativeArea',
-            FrenchGeoUtils::getDepartementRegion($this->dataValue()));
+        $record->setCastedField('AdministrativeArea', FrenchGeoUtils::getDepartementRegion($this->dataValue()));
         return parent::saveInto($record);
     }
 }

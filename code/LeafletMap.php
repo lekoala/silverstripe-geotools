@@ -62,12 +62,12 @@ class LeafletMap extends ViewableData
         $this->content = $content;
         return $this;
     }
-    
+
     public function getIcon()
     {
         return $this->icon;
     }
-    
+
     public function setIcon($icon)
     {
         $this->icon = $icon;
@@ -101,7 +101,7 @@ class LeafletMap extends ViewableData
         $this->tileLayer = $v;
         return $this;
     }
-    
+
     public function getMapOptions()
     {
         if ($this->mapOptions) {
@@ -109,7 +109,7 @@ class LeafletMap extends ViewableData
         }
         return self::config()->map_options;
     }
-    
+
     public function setMapOption($k, $v)
     {
         $this->mapOptions[$k] = $v;
@@ -126,7 +126,7 @@ class LeafletMap extends ViewableData
     {
         return json_encode($this->getMapOptions());
     }
-    
+
     public function getBuilderOptions()
     {
         if ($this->builderOptions) {
@@ -140,7 +140,7 @@ class LeafletMap extends ViewableData
         $this->builderOptions[$k] = $v;
         return $this;
     }
-    
+
     public function setBuilderOptions($v)
     {
         $this->builderOptions = $v;
@@ -241,11 +241,11 @@ class LeafletMap extends ViewableData
 
     public function forTemplate()
     {
-        Requirements::javascript('geotools/javascript/leaflet.js');
-        Requirements::css('geotools/javascript/leaflet.css');
+        Requirements::javascript('geotools/javascript/leaflet/leaflet.js');
+        Requirements::css('geotools/javascript/leaflet/leaflet.css');
         if ($this->enableClustering) {
-            Requirements::javascript('geotools/javascript/PruneCluster.min.js');
-            Requirements::css('geotools/javascript/LeafletStyleSheet.css');
+            Requirements::javascript('geotools/javascript/leaflet-prunecluster/PruneCluster.min.js');
+            Requirements::css('geotools/javascript/leaflet-prunecluster/LeafletStyleSheet.css');
         }
         if ($this->useBuilder) {
             Requirements::javascript('geotools/javascript/map-builder.js');
@@ -264,6 +264,7 @@ class LeafletMapItem
     public $number; // Will show as a number on the map
     public $category_title;
     public $category_image; // Url
+
 }
 
 class LeafletMapItemCategory
@@ -271,4 +272,5 @@ class LeafletMapItemCategory
 
     public $title;
     public $image;
+
 }

@@ -1,23 +1,22 @@
 {
-	"name": "lekoala/silverstripe-geotools",
-	"description": "Adds useful geotools in the SilverStripe CMS",
-	"type": "silverstripe-module",
-	"keywords": ["silverstripe", "geocooder", "module", "cms"],
-	"license": "BSD-3-Clause",
-	"authors": [
-		{
-			"name": "LeKoala",
-			"email": "thomas@lekoala.be"
-		}
-	],
-	"require":
-			{
-				"silverstripe/framework": "~3.1",
-				"willdurand/geocoder": "^3.1@dev",
-				"geoip2/geoip2": "~2.0"
-			},
-	"extra": {
-		"installer-name": "geotools"
-	}
-
+    "name": "lekoala/silverstripe-geotools",
+    "description": "Adds useful geotools in the SilverStripe CMS",
+    "type": "silverstripe-module",
+    "keywords": ["silverstripe", "geocooder", "module", "cms"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "LeKoala",
+            "email": "thomas@lekoala.be"
+        }
+    ],
+    "require":
+            {
+                "silverstripe/framework": "~3.1",
+                "willdurand/geocoder": "^3.3",
+                "geoip2/geoip2": "^2.4"
+            },
+    "extra": {
+        "installer-name": "geotools"
+    }
 }

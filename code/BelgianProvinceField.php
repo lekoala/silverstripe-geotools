@@ -7,8 +7,8 @@
  */
 class BelgianProvinceField extends GroupedDropdownField
 {
-    public function __construct($name = 'SubAdministrativeArea', $title = null, $source = array(),
-                                $value = '', $form = null, $emptyString = null)
+
+    public function __construct($name = 'SubAdministrativeArea', $title = null, $source = array(), $value = '', $form = null, $emptyString = null)
     {
         if ($title === null) {
             $title = _t('BelgianProvinceField.TITLE', 'Province');

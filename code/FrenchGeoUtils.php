@@ -7,10 +7,11 @@
  */
 class FrenchGeoUtils
 {
-    const CODE   = 'Code';
-    const NAME   = 'Name';
+
+    const CODE = 'Code';
+    const NAME = 'Name';
     const REGION = 'Region';
-    const NUTS   = 'Nuts';
+    const NUTS = 'Nuts';
 
     /**
      * Get all regions as an array

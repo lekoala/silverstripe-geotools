@@ -7,6 +7,7 @@
  */
 class StreetField extends FieldGroup
 {
+
     /**
      *
      * @var TextField
@@ -23,18 +24,16 @@ class StreetField extends FieldGroup
     {
         if ($arg1 === null) {
             $arg1 = new TextField('StreetName', '');
-            $arg1->setAttribute('placeholder',
-                _t('GeoMemberExtension.STREETNAME'));
+            $arg1->setAttribute('placeholder', _t('GeoMemberExtension.STREETNAME'));
             $arg1->setAttribute('style', 'width:300px');
         }
         if ($arg2 === null) {
             $arg2 = new TextField('StreetNumber', '');
-            $arg2->setAttribute('placeholder',
-                _t('GeoMemberExtension.STREETNUMBER'));
+            $arg2->setAttribute('placeholder', _t('GeoMemberExtension.STREETNUMBER'));
             $arg2->setAttribute('style', 'width:75px');
         }
 
-        $this->streetNameField   = $arg1;
+        $this->streetNameField = $arg1;
         $this->streetNumberField = $arg2;
 
         $lang = i18n::get_lang_from_locale(i18n::get_locale());
@@ -72,7 +71,7 @@ class StreetField extends FieldGroup
 
     public function extraClass()
     {
-        return 'text '.parent::extraClass();
+        return 'text ' . parent::extraClass();
     }
 
     public function setValueFrom(DataObjectInterface $do)

@@ -7,6 +7,7 @@
  */
 class Geocoder extends Object
 {
+
     /**
      * @var \Geocoder\ProviderAggregator
      */
@@ -66,7 +67,7 @@ class Geocoder extends Object
             $adaperOptions = self::config()->adapter_options;
             $configuration = new \Ivory\HttpAdapter\Configuration();
             foreach ($adaperOptions as $adapterParam => $adapterValue) {
-                $method = 'set'.ucfirst($adapterParam);
+                $method = 'set' . ucfirst($adapterParam);
                 $configuration->$method($adapterValue);
             }
 
@@ -82,12 +83,12 @@ class Geocoder extends Object
                 }
                 array_unshift($params, $adapterInstance); //put the adapter as the first param
 
-                $class = '\\Geocoder\\Provider\\'.$provider;
+                $class = '\\Geocoder\\Provider\\' . $provider;
                 if (!class_exists($class)) {
                     throw new RuntimeException("Provider class $class is not defined");
                 }
 
-                $reflectionClass  = new ReflectionClass($class);
+                $reflectionClass = new ReflectionClass($class);
                 $providerInstance = $reflectionClass->newInstanceArgs($params);
                 $geocoder->registerProvider($providerInstance);
             }
@@ -105,9 +106,9 @@ class Geocoder extends Object
     public static function getIpGeocoder($type = 'city')
     {
         if (!isset(self::$ipGeocoder[$type])) {
-            $reader = new \GeoIp2\Database\Reader(Director::baseFolder().'/'.self::config()->geoip_data[$type]);
+            $reader = new \GeoIp2\Database\Reader(Director::baseFolder() . '/' . self::config()->geoip_data[$type]);
 
-            $adapter  = new \Geocoder\Adapter\GeoIP2Adapter($reader, $type);
+            $adapter = new \Geocoder\Adapter\GeoIP2Adapter($reader, $type);
             $geocoder = new \Geocoder\Provider\GeoIP2($adapter);
 
             // Save
@@ -145,7 +146,7 @@ class Geocoder extends Object
         }
 
         // To test behaviour, it might be useful to return something else than local ip
-        if ($ip == '127.0.0.1') {
+        if (in_array($ip, ['127.0.0.1', '1', '::1'])) {
             return Geocoder::config()->local_ip;
         }
 
@@ -164,8 +165,7 @@ class Geocoder extends Object
      * @param bool $refresh_cache
      * @return Geocoder\Model\Address
      */
-    public static function geocodeIp($ip = null, $type = 'city',
-                                     $refresh_cache = false)
+    public static function geocodeIp($ip = null, $type = 'city', $refresh_cache = false)
     {
         if ($ip === null) {
             $ip = self::getRealIp();
@@ -175,8 +175,8 @@ class Geocoder extends Object
 
         // Cache support
         if (self::config()->cache_enabled) {
-            $cache     = self::getCache();
-            $cache_key = md5($ip.i18n::get_locale().$type);
+            $cache = self::getCache();
+            $cache_key = md5($ip . i18n::get_locale() . $type);
             if (!$refresh_cache) {
                 $cache_result = $cache->load($cache_key);
                 if ($cache_result) {
@@ -209,13 +209,12 @@ class Geocoder extends Object
      * @param bool $refresh_cache
      * @return Geocoder\Model\Address
      */
-    public static function reverseGeocode($latitude, $longitude,
-                                          $refresh_cache = false)
+    public static function reverseGeocode($latitude, $longitude, $refresh_cache = false)
     {
         // Cache support
         if (self::config()->cache_enabled) {
-            $cache     = self::getCache();
-            $cache_key = md5($latitude.','.$longitude.i18n::get_locale());
+            $cache = self::getCache();
+            $cache_key = md5($latitude . ',' . $longitude . i18n::get_locale());
             if (!$refresh_cache) {
                 $cache_result = $cache->load($cache_key);
                 if ($cache_result) {
@@ -230,8 +229,7 @@ class Geocoder extends Object
                 $result = $result->first();
             }
             if ($result && self::config()->cache_enabled) {
-                $cache->save(serialize($result), $cache_key, array('reverse'),
-                    null);
+                $cache->save(serialize($result), $cache_key, array('reverse'), null);
             }
             return $result;
         } catch (\Geocoder\Exception\ChainNoResultException $e) {
@@ -256,8 +254,8 @@ class Geocoder extends Object
     {
         // Cache support
         if (self::config()->cache_enabled) {
-            $cache     = self::getCache();
-            $cache_key = md5($address.i18n::get_locale());
+            $cache = self::getCache();
+            $cache_key = md5($address . i18n::get_locale());
             if ($refresh_cache) {
                 $cache_result = $cache->load($cache_key);
                 if ($cache_result) {
@@ -272,8 +270,7 @@ class Geocoder extends Object
                 $result = $result->first();
             }
             if ($result && self::config()->cache_enabled) {
-                $cache->save(serialize($result), $cache_key, array('address'),
-                    null);
+                $cache->save(serialize($result), $cache_key, array('address'), null);
             }
             return $result;
         } catch (Exception $e) {
@@ -298,8 +295,7 @@ class Geocoder extends Object
      * @param string $format
      * @return string
      */
-    public static function formatAddress(\Geocoder\Model\Address $address,
-                                         $format = null)
+    public static function formatAddress(\Geocoder\Model\Address $address, $format = null)
     {
         if ($format === null) {
             $format = self::config()->default_format;
@@ -316,16 +312,14 @@ class Geocoder extends Object
      */
     public static function simpleGeocode($address)
     {
-        $url    = sprintf('http://maps.google.com/maps?output=js&q=%s',
-            rawurlencode($address));
+        $url = sprintf('http://maps.google.com/maps?output=js&q=%s', rawurlencode($address));
         if ($result = file_get_contents($url)) {
             if (strpos($result, 'errortips') > 1) {
                 return false;
             }
-            preg_match('!center:\s*{lat:\s*(-?\d+\.\d+),lng:\s*(-?\d+\.\d+)}!U',
-                $result, $match);
-            $coords              = array();
-            $coords['Latitude']  = $match[1];
+            preg_match('!center:\s*{lat:\s*(-?\d+\.\d+),lng:\s*(-?\d+\.\d+)}!U', $result, $match);
+            $coords = array();
+            $coords['Latitude'] = $match[1];
             $coords['Longitude'] = $match[2];
             return $coords;
         }
