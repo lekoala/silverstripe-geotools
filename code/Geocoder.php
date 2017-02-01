@@ -146,7 +146,7 @@ class Geocoder extends Object
         }
 
         // To test behaviour, it might be useful to return something else than local ip
-        if (in_array($ip, ['127.0.0.1', '1', '::1'])) {
+        if (self::isLocalIp($ip)) {
             return Geocoder::config()->local_ip;
         }
 
@@ -155,6 +155,27 @@ class Geocoder extends Object
         }
 
         return '0.0.0.0';
+    }
+
+    /**
+     * Get a list of local ips
+     * 
+     * @return array
+     */
+    public static function getLocalIps()
+    {
+        return ['127.0.0.1', '1', '::1'];
+    }
+
+    /**
+     * Test if given ip is local
+     *
+     * @param string $ip
+     * @return bool
+     */
+    public static function isLocalIp($ip)
+    {
+        return in_array($ip, self::getLocalIps());
     }
 
     /**
@@ -169,6 +190,10 @@ class Geocoder extends Object
     {
         if ($ip === null) {
             $ip = self::getRealIp();
+        }
+
+        if (self::isLocalIp($ip)) {
+            return false;
         }
 
         $geocoder = self::getIpGeocoder($type);
