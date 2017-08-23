@@ -8,6 +8,12 @@
 class LeafletMap extends ViewableData
 {
 
+    const TS_OSM_MAPNIK = 'osm_mapnik';
+    const TS_OSM_BW = 'osm_bw';
+    const TS_OSM_FR = 'osm_fr';
+    const TS_ESRI = 'esri';
+    const TS_HYDDA = 'hydda';
+
     protected static $instances = 0;
     protected $enableClustering = false;
     protected $useBuilder = true;
@@ -29,6 +35,12 @@ class LeafletMap extends ViewableData
     {
         parent::__construct();
         self::$instances++;
+
+        if (defined('TILE_SERVER')) {
+            $this->setTileServer(TILE_SERVER);
+        } else {
+            $this->setTileServer($this->config()->tile_server);
+        }
     }
 
     public function getItemsUrl()
@@ -237,6 +249,42 @@ class LeafletMap extends ViewableData
     {
         $this->id = $id;
         return $this;
+    }
+
+    public function setTileServer($server)
+    {
+        if (is_string($server)) {
+            switch ($server) {
+                case 'osm_mapnik':
+                    $tileServer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                    $tileAttribution = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+                    break;
+                case 'osm_bw':
+                    $tileServer = 'http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png';
+                    $tileAttribution = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+                    break;
+                case 'osm_fr':
+                    $tileServer = 'http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png';
+                    $tileAttribution = '&copy; Openstreetmap France | &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+                    break;
+                case 'esri':
+                    $tileServer = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
+                    $tileAttribution = 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012';
+                    break;
+                case 'hydda':
+                    $tileServer = 'https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png';
+                    $tileAttribution = 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+                    break;
+                default:
+                    throw new Exception("Tileserver $server is not defined");
+            }
+        } else {
+            $tileServer = $server['server'];
+            $tileAttribution = $server['attribution'];
+        }
+
+        $this->setTileLayer($tileServer);
+        $this->setTileOptions('attribution', $tileAttribution);
     }
 
     public function forTemplate()

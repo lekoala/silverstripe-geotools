@@ -611,4 +611,14 @@ HAVING distance < $distance ORDER BY distance";
         }
         return $item;
     }
+
+    public function getLeafletMap()
+    {
+        $map = new LeafletMap();
+        $map->setLatitude($this->owner->Latitude);
+        $map->setLongitude($this->owner->Longitude);
+        $map->setUseBuilder(true);
+        $map->setEnableClustering(false);
+        return $map->forTemplate();
+    }
 }

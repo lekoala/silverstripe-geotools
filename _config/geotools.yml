@@ -28,8 +28,7 @@ Geocoder:
     city: 'geotools/ressources/GeoLite2-City.mmdb'
     country: 'geotools/ressources/GeoLite2-Country.mmdb'
 LeafletMap:
-  # view more at http://leaflet-extras.github.io/leaflet-providers/preview/
-  tilelayer: 'https://otile1-s.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png'
+  tile_server: 'esri'
   tile_options:
     attribution: 'Copyright Info: Tiles Courtesy of MapQuest © OpenStreetMap under ODbL v1.0'
     maxZoom: 18
