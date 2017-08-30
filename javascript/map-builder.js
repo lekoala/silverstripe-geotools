@@ -1,6 +1,6 @@
 function buildLeafletMap(id) {
-    var $map = $('#' + id);
-    var $content = $('#' + id + '_content');
+    var $map = jQuery('#' + id);
+    var $content = jQuery('#' + id + '_content');
     var mapOptions = $map.data('mapoptions');
     var builderOptions = $map.data('builderoptions');
     var height = $map.css('height');
@@ -47,7 +47,7 @@ function buildLeafletMap(id) {
     }
     // 100% height support
     if (!height || height === '0px') {
-        $map.height($(window).height());
+        $map.height(jQuery(window).height());
         map.invalidateSize();
     }
 
