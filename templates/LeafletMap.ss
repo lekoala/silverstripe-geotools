@@ -1,5 +1,5 @@
 <div id="$ID" class="$CSSClasses" 
-	 data-lat="$Latitude" data-lon="$Longitude"
+	 data-lat="$Latitude" data-lon="$Longitude" data-zoom="$Zoom"
 	 <% if Icon %>data-icon="$Icon"<% end_if %>
 	 data-tilelayer="$TileLayer"
 	 data-tileoptions='$TileOptionsJson'
