@@ -7,8 +7,8 @@ function buildLeafletMap(id) {
     var lat = $map.data('lat');
     var lon = $map.data('lon');
     var icon = $map.data('icon');
-    var zoom = 16;
     var itemsurl = $map.data('itemsurl');
+    var zoom = $map.data('zoom');
     if (!zoom) {
         zoom = 12;
     }
