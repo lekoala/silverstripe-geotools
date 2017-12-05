@@ -55,7 +55,7 @@ function buildLeafletMap(id) {
     // Load items
     if (itemsurl) {
 
-        $.getJSON(itemsurl, function(data) {
+        jQuery.getJSON(itemsurl, function(data) {
 
             var points = [];
             for (var i = 0; i < data.length; i++) {
