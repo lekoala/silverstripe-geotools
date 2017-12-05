@@ -98,6 +98,11 @@ function buildLeafletMap(id) {
             if (builderOptions.fitToBounds) {
                 var bounds = new L.LatLngBounds(points);
                 map.fitBounds(bounds);
+                // Use the defined zoom if only one element to display.
+                if ( points.length == 1 && $map.data('zoom') ) {
+                    zoomDelta = map.getZoom() - $map.data('zoom');
+                    map.zoomOut(zoomDelta);
+                }
             } else {
 
             }
