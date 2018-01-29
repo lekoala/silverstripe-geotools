@@ -46,7 +46,7 @@ class GeoExtension extends DataExtension
 
     /**
      * Get country based on CountryCode
-     * 
+     *
      * @return string
      */
     public function getCountryFromCode()
@@ -70,7 +70,7 @@ class GeoExtension extends DataExtension
 
     /**
      * Get country
-     * 
+     *
      * @return string
      */
     public function getCountry()
@@ -409,7 +409,7 @@ HAVING distance < $distance ORDER BY distance";
 
     /**
      * Copy data from another dataobject
-     * 
+     *
      * @param DataObjectInterface $dataobject
      * @param bool $overwrite
      * @return bool
@@ -484,6 +484,11 @@ HAVING distance < $distance ORDER BY distance";
     public function onBeforeWrite()
     {
         parent::onBeforeWrite();
+
+        if(SapphireTest::is_running_test()) {
+            return;
+        }
+
         if (!$this->owner->Timezone) {
             $this->owner->Timezone = date_default_timezone_get();
         }
@@ -570,7 +575,7 @@ HAVING distance < $distance ORDER BY distance";
 
     /**
      * Convenience method to convert a whole array
-     * 
+     *
      * @param array $arr
      * @return array
      */
