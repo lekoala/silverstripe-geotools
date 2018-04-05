@@ -368,14 +368,15 @@ HAVING distance < $distance ORDER BY distance";
     }
 
     /**
+     * @param bool $geoDefaults
      * @return \FieldList
      */
-    public function getGeoFields()
+    public function getGeoFields($geoDefaults = true)
     {
         $fields = new FieldList;
 
         $fields->push(new HeaderField('AddressHeader', _t('GeoMemberExtension.ADDRESSHEADER', 'Address')));
-        $fields->push($this->getAddressFields(), 'Address');
+        $fields->push($this->getAddressFields($geoDefaults), 'Address');
 
         $fields->push(new HeaderField('GeoHeader', _t('GeoMemberExtension.GEOHEADER', 'Geo data')));
 
