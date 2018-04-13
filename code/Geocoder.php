@@ -19,7 +19,7 @@ class Geocoder extends Object
     protected static $ipGeocoder = array();
 
     /**
-     * @var Zend_Cache_Frontend 
+     * @var Zend_Cache_Frontend
      */
     protected static $cache;
 
@@ -159,7 +159,7 @@ class Geocoder extends Object
 
     /**
      * Get a list of local ips
-     * 
+     *
      * @return array
      */
     public static function getLocalIps()
@@ -180,7 +180,7 @@ class Geocoder extends Object
 
     /**
      * Geocode an ip address using geoip2 database
-     * 
+     *
      * @param string $ip if no ip is provided, client ip is used
      * @param string $type city|country
      * @param bool $refresh_cache
@@ -228,7 +228,7 @@ class Geocoder extends Object
 
     /**
      * Get an address from latitude and longitude
-     * 
+     *
      * @param float $latitude
      * @param float $longitude
      * @param bool $refresh_cache
@@ -337,7 +337,7 @@ class Geocoder extends Object
      */
     public static function simpleGeocode($address)
     {
-        $url = sprintf('http://maps.google.com/maps?output=js&q=%s', rawurlencode($address));
+        $url = sprintf('http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false', rawurlencode($address));
         if ($result = file_get_contents($url)) {
             if (strpos($result, 'errortips') > 1) {
                 return false;

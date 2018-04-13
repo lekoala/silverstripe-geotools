@@ -243,17 +243,23 @@ class GeoExtension extends DataExtension
      * @param int $distance in kilometers => 6371 (radius of earth)
      * @return ArrayList
      */
-    public static function Nearby($lat, $lng, $distance = 100, $limit = null)
+    public function Nearby($lat = null, $lng = null, $distance = 100, $limit = null)
     {
         $class = $this->owner->class;
+        if($lat === null) {
+            $lat = $this->owner->Latitude;
+        }
+        if($lng === null) {
+            $lng = $this->owner->Longitude;
+        }
         $table = ClassInfo::baseDataClass($class);
         $sql = "SELECT ID,
 ( 6371 * acos(
 cos( radians($lat))
-* cos( radians( Lat ))
-* cos( radians( Lon ) - radians($lng))
+* cos( radians( Latitude ))
+* cos( radians( Longitude ) - radians($lng))
 + sin( radians($lat ))
-* sin( radians( Lat ))
+* sin( radians( Latitude ))
  )) AS distance
 FROM " . $table . "
 HAVING distance < $distance ORDER BY distance";
