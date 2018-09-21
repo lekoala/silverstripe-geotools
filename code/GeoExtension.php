@@ -618,6 +618,7 @@ HAVING distance < $distance ORDER BY distance";
         }
         if ($this->owner->hasMethod('getLeafletCategory')) {
             $category = $this->owner->getLeafletCategory();
+            $item->category_id = $category->id;
             $item->category_title = $category->title;
             $item->category_image = $category->image;
         }
