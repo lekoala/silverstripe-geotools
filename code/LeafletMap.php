@@ -317,7 +317,7 @@ class LeafletMapItem
 
 class LeafletMapItemCategory
 {
-
+    public $id;
     public $title;
     public $image;
 
