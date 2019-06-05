@@ -84,6 +84,23 @@ class GeoExtension extends DataExtension
     }
 
     /**
+     * Get SubAdministrativeArea name based on SubAdministrativeArea code
+     *
+     * @return string
+     */
+    public function getSubAdministrativeAreaFromCode()
+    {
+        if (!$this->owner->SubAdministrativeArea) {
+            return;
+        }
+
+        // Support some countries administrative areas
+        if ($this->owner->CountryCode == 'FR') {
+            return FrenchGeoUtils::getDepartementName($this->owner->SubAdministrativeArea);
+        }
+    }
+
+    /**
      * Get country as an object
      *
      * @return \Geocoder\Model\Country
