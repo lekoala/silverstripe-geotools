@@ -260,6 +260,21 @@ class FrenchGeoUtils
     }
 
     /**
+     * Get the name of the given department
+     *
+     * @param string $department
+     * @return string
+     */
+    public static function getDepartementName($department)
+    {
+        foreach (self::getDepartments() as $dep) {
+            if ($department == $dep['Code'] || $department == $dep['Name']) {
+                return $dep['Name'];
+            }
+        }
+    }
+
+    /**
      * Get french departments by region (ready to use for GroupedDropdownField)
      *
      * @param string $key Name or Code
