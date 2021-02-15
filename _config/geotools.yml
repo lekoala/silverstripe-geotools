@@ -17,6 +17,6 @@ After: '#corefieldtypes'
 ---
 SilverStripe\Core\Injector\Injector:
   Country:
-    class: LeKoala\Base\ORM\FieldType\DBCountry
+    class: LeKoala\GeoTools\FieldType\DBCountry
   Timezone:
-    class: LeKoala\Base\ORM\FieldType\DBTimezone
+    class: LeKoala\GeoTools\FieldType\DBTimezone

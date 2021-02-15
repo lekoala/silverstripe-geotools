@@ -2,8 +2,8 @@
 
 namespace LeKoala\GeoTools\Fields;
 
+use LeKoala\GeoTools\CountriesList;
 use SilverStripe\Forms\DropdownField;
-use LeKoala\Base\Geo\CountriesList;
 
 class CountryDropdownField extends DropdownField
 {
