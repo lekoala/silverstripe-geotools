@@ -1,22 +1,46 @@
 {
     "name": "lekoala/silverstripe-geotools",
-    "description": "Adds useful geotools in the SilverStripe CMS",
-    "type": "silverstripe-module",
-    "keywords": ["silverstripe", "geocooder", "module", "cms"],
-    "license": "BSD-3-Clause",
+    "description": "Geo tools for SilverStripe",
+    "type": "silverstripe-vendormodule",
+    "keywords": [
+        "silverstripe",
+        "geo",
+        "module",
+        "cms"
+    ],
+    "license": "MIT",
     "authors": [
         {
             "name": "LeKoala",
             "email": "thomas@lekoala.be"
         }
     ],
-    "require":
-            {
-                "silverstripe/framework": "~3.1",
-                "willdurand/geocoder": "^3.3",
-                "geoip2/geoip2": "^2.4"
-            },
+    "require": {
+        "php": ">=7.2",
+        "silverstripe/recipe-plugin": "^1",
+        "silverstripe/recipe-cms": "^4.4"
+    },
+    "require-dev": {
+        "sminnee/phpunit": "^5.7",
+        "squizlabs/php_codesniffer": "^3.0"
+    },
     "extra": {
         "installer-name": "geotools"
-    }
+    },
+    "autoload": {
+        "psr-4": {
+            "LeKoala\\GeoTools\\": "src/",
+            "LeKoala\\GeoTools\\Test\\": "tests/"
+        }
+    },
+    "support": {
+        "issues": "https://github.com/lekoala/silverstripe-geotools/issues"
+    },
+    "scripts": {
+        "lint": "phpcs src/ tests/",
+        "lint-clean": "phpcbf src/ tests/",
+        "test": "phpunit -v"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

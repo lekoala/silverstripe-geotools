@@ -1,62 +1,19 @@
 ---
 Name: geotools
-After:
-  - 'framework/*'
-  - 'cms/*'
 ---
-Member:
-  extensions:
-    - 'GeoExtension'
-Geocoder:
-  # or use whatver makes sense to you
-  local_ip: '68.145.37.34'
-  local_address: 'Suite 800, 630 - 3Rd Ave. Sw, Calgary, AB, T2P-4L4, CA'
-  default_format: '%S %n, %z %L, %C'
-  cache_enabled: true
-  # https://github.com/egeloen/ivory-http-adapter
-  adapter: '\Ivory\HttpAdapter\CurlHttpAdapter'
-  # https://github.com/egeloen/ivory-http-adapter/blob/master/doc/configuration.md
-  adapter_options :
-    KeepAlive: true
-    Timeout: 5
-  # look into vendor/willdurand/geocoder/src/Geocoder/Provider
-  providers:
-    OpenStreetMap: []
-    #GoogleMaps: ['locale',null,true,'your_api_key']
-    #BingMaps: ['your_api_key','locale']
-  geoip_data:
-    city: 'geotools/ressources/GeoLite2-City.mmdb'
-    country: 'geotools/ressources/GeoLite2-Country.mmdb'
-LeafletMap:
-  tile_server: 'esri'
-  tile_options:
-    attribution: 'Copyright Info: Tiles Courtesy of MapQuest © OpenStreetMap under ODbL v1.0'
-    maxZoom: 18
-    detectRetina: true
-  default_zoom: 12
-  map_options:
-    scrollWheelZoom: false
-  builder_options:
-    fitToBounds: true
-    iconSize: [25,41]
+SilverStripe\Core\Injector\Injector:
+  LeKoala\Base\Geo\Services\Geocoder:
+    type: singleton
+    class: LeKoala\Base\Geo\Services\GeocodeXyz
+  LeKoala\Base\Geo\Services\Geolocator:
+    type: singleton
+    class: LeKoala\Base\Geo\Services\Graphloc
 ---
-Only:
-  classexists: 'Fluent'
+Name: geotools-fieldtypes
+After: '#corefieldtypes'
 ---
-Fluent:
-  field_exclude:
-    - 'Theme'
-    - '/^LocaleFilter_/i'
-    - 'Priority'
-    - 'StreetNumber'
-    - 'StreetName'
-    - 'PostalCode'
-    - 'Locality'
-    - 'SubLocality'
-    - 'CountyName'
-    - 'CountyCode'
-    - 'RegionName'
-    - 'RegionCode'
-    - 'CountryName'
-    - 'CountryCode'
-    - 'Timezone'
+SilverStripe\Core\Injector\Injector:
+  Country:
+    class: LeKoala\Base\ORM\FieldType\DBCountry
+  Timezone:
+    class: LeKoala\Base\ORM\FieldType\DBTimezone
