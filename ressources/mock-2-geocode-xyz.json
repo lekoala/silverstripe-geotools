@@ -1,0 +1,14 @@
+{
+    "standard": {
+        "addresst": "Champs Élysées",
+        "city": "Paris",
+        "prov": "FR",
+        "countryname": "France",
+        "postal": {},
+        "confidence": "0.45"
+    },
+    "longt": "2.30390",
+    "alt": {},
+    "elevation": {},
+    "latt": "48.87116"
+}

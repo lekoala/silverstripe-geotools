@@ -8,6 +8,7 @@ use LeKoala\GeoTools\Models\Country;
 use LeKoala\GeoTools\Models\Coordinates;
 
 /**
+ * @deprecated
  * @link https://graphloc.com/
  */
 class Graphloc implements Geolocator

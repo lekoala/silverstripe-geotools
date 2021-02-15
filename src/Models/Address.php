@@ -2,6 +2,8 @@
 
 namespace LeKoala\GeoTools\Models;
 
+use Exception;
+use InvalidArgumentException;
 use LeKoala\GeoTools\Models\Country;
 use LeKoala\GeoTools\Models\Coordinates;
 
@@ -36,9 +38,9 @@ class Address
     protected $coordinates;
 
     /**
-     * @param mixed $address
-     * @param mixed $country
-     * @param mixed $coordinates
+     * @param array|string $address
+     * @param array|string|Country $country
+     * @param array|string|Coordinates $coordinates
      */
     public function __construct($address = null, $country = null, $coordinates = null)
     {
@@ -46,6 +48,9 @@ class Address
             if (is_array($address)) {
                 foreach ($address as $k => $v) {
                     if (property_exists($this, $k)) {
+                        if (is_array($v)) {
+                            throw new InvalidArgumentException("Value must be a string, got " . json_encode($v));
+                        }
                         $this->$k = $v;
                     }
                 }
@@ -88,7 +93,6 @@ class Address
      * Set the value of country
      *
      * @param  Country  $country
-     *
      * @return $this
      */
     public function setCountry(Country $country)
@@ -111,7 +115,6 @@ class Address
      * Set the value of coordinates
      *
      * @param  Coordinates  $coordinates
-     *
      * @return $this
      */
     public function setCoordinates(Coordinates $coordinates)
@@ -134,13 +137,11 @@ class Address
      * Set the value of streetName
      *
      * @param string $streetName
-     *
      * @return $this
      */
     public function setStreetName(string $streetName)
     {
         $this->streetName = $streetName;
-
         return $this;
     }
 
@@ -158,13 +159,11 @@ class Address
      * Set the value of streetNumber
      *
      * @param string $streetNumber
-     *
      * @return $this
      */
     public function setStreetNumber(string $streetNumber)
     {
         $this->streetNumber = $streetNumber;
-
         return $this;
     }
 
@@ -182,13 +181,11 @@ class Address
      * Set the value of postalCode
      *
      * @param string $postalCode
-     *
      * @return $this
      */
     public function setPostalCode(string $postalCode)
     {
         $this->postalCode = $postalCode;
-
         return $this;
     }
 

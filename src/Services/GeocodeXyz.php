@@ -33,6 +33,21 @@ class GeocodeXyz implements Geocoder, Geolocator
 
         $url .= '?' . http_build_query($params);
 
+        $headers = [
+            "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "accept-encoding: gzip, deflate, br",
+            "accept-language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,nb;q=0.6",
+            "cache-control: max-age=0",
+            "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36",
+        ];
+        $opts = array('http' =>
+        array(
+            'method' => 'POST',
+            'header' => implode("\r\n", $headers),
+        ));
+
+        $context = stream_context_create($opts, $opts);
+
         $result = file_get_contents($url);
         if (!$result) {
             throw new Exception("The api returned no result");
@@ -48,6 +63,7 @@ class GeocodeXyz implements Geocoder, Geolocator
         $countryCode = $countryName = null;
         $lat = $lon = null;
 
+        // normalize
         if (isset($data['standard'])) {
             $location = [
                 'streetName' => $data['standard']['addresst'] ?? null,
@@ -66,6 +82,11 @@ class GeocodeXyz implements Geocoder, Geolocator
             ];
             $countryCode = $data['prov'] ?? null;
             $countryName = $data['country'] ?? null;
+        }
+
+        // Make sure we have a string
+        if (empty($location['postalCode'])) {
+            $location['postalCode'] = '';
         }
 
         if (!empty($data['latt'])) {
