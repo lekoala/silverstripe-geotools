@@ -1,10 +1,10 @@
 <?php
 
-namespace LeKoala\Base\ORM\FieldType;
+namespace LeKoala\GeoTools\FieldType;
 
-use SilverStripe\ORM\FieldType\DBVarchar;
-use LeKoala\Base\Forms\CountryDropdownField;
 use LeKoala\GeoTools\CountriesList;
+use SilverStripe\ORM\FieldType\DBVarchar;
+use LeKoala\GeoTools\Fields\CountryDropdownField;
 
 /**
  * A country field

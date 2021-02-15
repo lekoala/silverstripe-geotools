@@ -2,12 +2,15 @@
 Name: geotools
 ---
 SilverStripe\Core\Injector\Injector:
-  LeKoala\Base\Geo\Services\Geocoder:
+  LeKoala\GeoTools\Services\Geocoder:
     type: singleton
-    class: LeKoala\Base\Geo\Services\GeocodeXyz
-  LeKoala\Base\Geo\Services\Geolocator:
+    class: LeKoala\GeoTools\Services\GeocodeXyz
+  LeKoala\GeoTools\Services\Geolocator:
     type: singleton
-    class: LeKoala\Base\Geo\Services\Graphloc
+    class: LeKoala\GeoTools\Services\Graphloc
+LeKoala\GeoTools\Address:
+  extensions:
+    - LeKoala\GeoTools\GeoExtension
 ---
 Name: geotools-fieldtypes
 After: '#corefieldtypes'
