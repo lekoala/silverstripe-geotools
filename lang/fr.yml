@@ -1,4 +1,6 @@
 fr:
+  CountryDropdownField:
+    TITLE: Pays
   GeoMemberExtension:
     ADDRESSHEADER: Adresse
     CITY: Ville
