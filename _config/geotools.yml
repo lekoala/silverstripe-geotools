@@ -13,7 +13,7 @@ LeKoala\GeoTools\Address:
     - LeKoala\GeoTools\GeoExtension
 ---
 Name: geotools-fieldtypes
-After: '#corefieldtypes'
+After: "#corefieldtypes"
 ---
 SilverStripe\Core\Injector\Injector:
   Country:
