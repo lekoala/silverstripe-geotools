@@ -17,6 +17,7 @@ class CountryDropdownField extends DropdownField
         if (empty($source)) {
             $source = CountriesList::get();
         }
+        $this->setEmptyString(_t('CountryDropdownField.PLEASESELECTACOUNTRY', 'Please select a country'));
         parent::__construct($name, $title, $source, $value);
     }
 }
