@@ -5,7 +5,7 @@
  *
  * @author lekoala
  */
-class Geocoder extends Object
+class Geocoder extends SS_Object
 {
 
     /**
