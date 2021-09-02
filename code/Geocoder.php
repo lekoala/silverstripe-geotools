@@ -257,7 +257,7 @@ class Geocoder extends SS_Object
                 $cache->save(serialize($result), $cache_key, array('reverse'), null);
             }
             return $result;
-        } catch (\Geocoder\Exception\ChainNoResultException $e) {
+        } catch (\Geocoder\Exception\ChainNoResult $e) {
             SS_Log::log($e->getMessage(), SS_Log::DEBUG);
             self::$lastException = $e;
             return false;
