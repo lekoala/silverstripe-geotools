@@ -475,15 +475,13 @@ HAVING distance < $distance ORDER BY distance";
     /**
      * Returns TRUE if any of the address fields have changed.
      *
-     * @param  int $level
+     * @param  int $level (mode "value" by default to avoid geocoding with empty fields).
      * @return bool
      */
-    public function isAddressChanged($level = 1)
+    public function isAddressChanged($level = 2)
     {
         $fields = array('StreetName', 'StreetNumber', 'Locality', 'PostalCode',
-            'CountryCode', 'GeolocateOnLocation ')
-
-        ;
+            'CountryCode', 'GeolocateOnLocation ');
         $changed = $this->owner->getChangedFields(false, $level);
 
         foreach ($fields as $field) {
