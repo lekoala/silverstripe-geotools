@@ -51,7 +51,22 @@ class Nominatim implements Geocoder
 
         $url .= '?' . http_build_query($params);
 
-        $result = file_get_contents($url);
+        // Create a stream
+        $opts = [
+            "http" => [
+                "method" => "GET",
+                "header" => implode("\r\n", [
+                    "Accept: application/json",
+                    "Accept-Encoding: gzip, deflate, br",
+                    "Accept-Language: en",
+                    "Cache-Control: no-cache",
+                    "Pragma: no-cache",
+                    "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+                ])
+            ]
+        ];
+        $context = stream_context_create($opts);
+        $result = file_get_contents($url, false, $context);
         if (!$result) {
             throw new Exception("The api returned no result");
         }
