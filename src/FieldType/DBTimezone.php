@@ -23,4 +23,34 @@ class DBTimezone extends DBVarchar
         $field->setHasEmptyDefault(true);
         return $field;
     }
+
+    public function FullAlias()
+    {
+        $field = TimezoneDropdown::create('dummy');
+
+        // Use config value or some default values
+        // See more https://www.timeanddate.com/time/zones/
+        $aliases = $field->hasMethod('normalizedAliases') ? $field->normalizedAliases() : [
+            "Gulf Standard Time (GST)" => "Asia/Dubai",
+            "Central European Time (CET)" => "Europe/Brussels",
+            "Atlantic Standard Time (AST)" => "America/Blanc-Sablon",
+            "Eastern Standard Time (EST)" => "America/Panama",
+            "Central Standard Time (CST)" => "America/Regina",
+            "Mountain Standard Time (MST)" => "America/Phoenix",
+            "Pacific Standard Time (PST)" => "America/Los_Angeles",
+        ];
+        $v = $this->value;
+        $flip = array_flip($aliases);
+        return $flip[$v] ?? $v;
+    }
+
+    public function ShortAlias()
+    {
+        $alias = $this->FullAlias();
+        $parts = explode("(", $alias);
+        if (isset($parts[1])) {
+            return trim($parts[1], ')');
+        }
+        return $parts[0];
+    }
 }
