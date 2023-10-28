@@ -6,7 +6,7 @@ use SilverStripe\ORM\FieldType\DBVarchar;
 use LeKoala\GeoTools\Fields\TimezoneDropdown;
 
 /**
- * A tmiezone field
+ * A timezone dbfield
  */
 class DBTimezone extends DBVarchar
 {

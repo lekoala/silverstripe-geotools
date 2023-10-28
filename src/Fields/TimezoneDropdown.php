@@ -4,12 +4,28 @@ namespace LeKoala\GeoTools\Fields;
 
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\ORM\ArrayLib;
+use SilverStripe\ORM\DataObjectInterface;
 
 /**
  * A timezone dropdown
+ * @link https://www.php.net/manual/en/timezones.others.php
+ * @link https://www.timeanddate.com/time/zones/
  */
 class TimezoneDropdown extends DropdownField
 {
+    // in yml, it needs to be name/value like so
+    // - name: "Gulf Standard Time (GST)"
+    //   value: "Asia/Dubai"
+    private static $aliases = [
+        // "Gulf Standard Time (GST)" => "Asia/Dubai",
+        // "Central European Time (CET)" => "Europe/Brussels",
+        // "Atlantic Standard Time (AST)" => "America/Blanc-Sablon",
+        // "Eastern Standard Time (EST)" => "America/Panama",
+        // "Central Standard Time (CST)" => "America/Regina",
+        // "Mountain Standard Time (MST)" => "America/Phoenix",
+        // "Pacific Standard Time (PST)" => "America/Los_Angeles",
+    ];
+
     /**
      * @param string $name The field name
      * @param string $title The field title
@@ -20,7 +36,25 @@ class TimezoneDropdown extends DropdownField
     {
         if (empty($source)) {
             $source = ArrayLib::valuekey(timezone_identifiers_list());
+            $aliases = $this->config()->aliases ?? [];
+            if (!empty($aliases)) {
+                $normalizedAliases = [];
+                foreach ($aliases as $k => $v) {
+                    if (is_int($k)) {
+                        $normalizedAliases[$v['name']] = '_' . $v['value'];
+                    } else {
+                        $normalizedAliases[$k] = '_' . $v;
+                    }
+                }
+
+                $source = array_flip($normalizedAliases) + $source;
+            }
         }
         parent::__construct($name, $title, $source, $value);
+    }
+
+    public function dataValue()
+    {
+        return ltrim(parent::dataValue(), '_');
     }
 }
