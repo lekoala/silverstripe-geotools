@@ -24,7 +24,7 @@ class MapBox implements Geocoder
     /**
      * @link https://www.mapbox.com/api-documentation/#geocoding
      * @param string $query
-     * @param array $params country, proximity, types, autocomplete, bbox, limit, language
+     * @param array<int|string,mixed> $params country, proximity, types, autocomplete, bbox, limit, language
      * @return Address
      * @throws Exception when there is a problem with the api, otherwise may return an empty address
      */
@@ -49,7 +49,7 @@ class MapBox implements Geocoder
             throw new Exception("The api returned no result");
         }
 
-        $data = json_decode($result, JSON_OBJECT_AS_ARRAY);
+        $data = json_decode($result, true);
 
         if (!$data) {
             throw new Exception("Failed to decode api results");
@@ -93,6 +93,10 @@ class MapBox implements Geocoder
         return new Address($location, $country, $coordinates);
     }
 
+    /**
+     * @param string $locale
+     * @return string
+     */
     protected function getLanguage($locale)
     {
         $lang = substr($locale, 0, 2);
@@ -103,7 +107,7 @@ class MapBox implements Geocoder
     }
 
     /**
-     * @return array
+     * @return array<string>
      */
     public static function listLanguages()
     {

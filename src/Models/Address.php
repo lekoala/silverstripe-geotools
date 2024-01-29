@@ -2,7 +2,6 @@
 
 namespace LeKoala\GeoTools\Models;
 
-use Exception;
 use InvalidArgumentException;
 use LeKoala\GeoTools\Models\Country;
 use LeKoala\GeoTools\Models\Coordinates;
@@ -38,9 +37,9 @@ class Address
     protected $coordinates;
 
     /**
-     * @param array|string $address
-     * @param array|string|Country $country
-     * @param array|string|Coordinates $coordinates
+     * @param array<string,string>|string $address
+     * @param array<string,string>|string|Country $country
+     * @param array<string,string>|string|Coordinates $coordinates
      */
     public function __construct($address = null, $country = null, $coordinates = null)
     {
@@ -48,9 +47,6 @@ class Address
             if (is_array($address)) {
                 foreach ($address as $k => $v) {
                     if (property_exists($this, $k)) {
-                        if (is_array($v)) {
-                            throw new InvalidArgumentException("Value must be a string, got " . json_encode($v));
-                        }
                         $this->$k = $v;
                     }
                 }

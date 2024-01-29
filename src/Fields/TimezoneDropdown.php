@@ -2,9 +2,9 @@
 
 namespace LeKoala\GeoTools\Fields;
 
-use SilverStripe\Forms\DropdownField;
+use ArrayAccess;
 use SilverStripe\ORM\ArrayLib;
-use SilverStripe\ORM\DataObjectInterface;
+use SilverStripe\Forms\DropdownField;
 
 /**
  * A timezone dropdown
@@ -13,9 +13,13 @@ use SilverStripe\ORM\DataObjectInterface;
  */
 class TimezoneDropdown extends DropdownField
 {
-    // in yml, it needs to be name/value like so
-    // - name: "Gulf Standard Time (GST)"
-    //   value: "Asia/Dubai"
+    /**
+     * in yml, it needs to be name/value like so
+     * - name: "Gulf Standard Time (GST)"
+     *   value: "Asia/Dubai"
+     *
+     * @var array<string,string>
+     */
     private static $aliases = [
         // "Gulf Standard Time (GST)" => "Asia/Dubai",
         // "Central European Time (CET)" => "Europe/Brussels",
@@ -29,10 +33,10 @@ class TimezoneDropdown extends DropdownField
     /**
      * @param string $name The field name
      * @param string $title The field title
-     * @param array|ArrayAccess $source A map of the dropdown items
+     * @param array<string,string>|ArrayAccess<string,string> $source A map of the dropdown items
      * @param mixed $value The current value
      */
-    public function __construct($name, $title = null, $source = array(), $value = null)
+    public function __construct($name, $title = null, $source = [], $value = null)
     {
         if (empty($source)) {
             $source = ArrayLib::valuekey(timezone_identifiers_list());
@@ -54,11 +58,14 @@ class TimezoneDropdown extends DropdownField
         parent::__construct($name, $title, $source, $value);
     }
 
-    public function normalizedAliases()
+    /**
+     * @return array<string,string>
+     */
+    public function normalizedAliases(): array
     {
         $aliases = $this->config()->aliases ?? [];
+        $normalizedAliases = [];
         if (!empty($aliases)) {
-            $normalizedAliases = [];
             foreach ($aliases as $k => $v) {
                 if (is_int($k)) {
                     $normalizedAliases[$v['name']] = $v['value'];
@@ -66,10 +73,9 @@ class TimezoneDropdown extends DropdownField
                     $normalizedAliases[$k] = $v;
                 }
             }
-
-            return $normalizedAliases;
         }
-        return [];
+        //@phpstan-ignore-next-line
+        return $normalizedAliases;
     }
 
     public function dataValue()

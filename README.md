@@ -10,17 +10,11 @@ Geo tools for SilverStripe
 
 ## TODO
 
-- Doc
-- Tests
-
-## Previous versions
-
-For the previous version of this module, see branch 1
-There has been significant changes for ss4 version
+-   Doc
 
 ## Compatibility
 
-Tested with 4.6 but should work on any ^4.4 projects
+Tested with ^5
 
 ## Maintainer
 

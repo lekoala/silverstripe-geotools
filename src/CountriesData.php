@@ -24,9 +24,10 @@ class CountriesData
      */
     private $file;
     /**
-     * @var array
+     * @var array<array<mixed>>
      */
     private $data;
+
     /**
      * @param string $file
      */
@@ -38,14 +39,16 @@ class CountriesData
             $this->setFile(dirname(dirname(__DIR__)) . '/resources/Geo/countries.csv');
         }
     }
+
     /**
      * @param string $file
-     * @return $this
+     * @return self
      */
     public static function getInstance($file = null)
     {
         return new self($file);
     }
+
     /**
      * @return string
      */
@@ -53,14 +56,18 @@ class CountriesData
     {
         return $this->file;
     }
+
     /**
      * @param string $file
+     * @return self
      */
     public function setFile($file)
     {
         $this->file = $file;
+        return $this;
     }
-    private function loadData()
+
+    private function loadData(): void
     {
         if ($this->data) {
             return;
@@ -72,10 +79,17 @@ class CountriesData
             throw new Exception("File {$this->file} is not readable");
         }
         $file = fopen($this->file, "r");
-        $arr = array();
+        if ($file === false) {
+            throw new Exception("Unable to open stream");
+        }
+        $arr = [];
         $headers = fgetcsv($file);
         while (!feof($file)) {
-            $arr[] = array_combine($headers, fgetcsv($file));
+            $line = fgetcsv($file);
+            if ($line) {
+                //@phpstan-ignore-next-line
+                $arr[] = array_combine($headers, $line);
+            }
         }
         fclose($file);
         $this->data = $arr;
@@ -83,20 +97,21 @@ class CountriesData
     /**
      * Get the list of all countries
      *
-     * @return array
+     * @return array<array<mixed>>
      */
     public function getCountries()
     {
         $this->loadData();
         return $this->data;
     }
+
     /**
      * Convert a code to another
      *
      * @param string $code
      * @param string $from
      * @param string $to
-     * @return string
+     * @return string|bool
      */
     public function convertCode($code, $from, $to)
     {
@@ -111,36 +126,39 @@ class CountriesData
         }
         return false;
     }
+
     /**
      * Convert ISO2 to ISO3
      *
      * @param string $code
-     * @return string
+     * @return string|bool
      */
     public function convertIso2ToIso3($code)
     {
         return $this->convertCode($code, self::ISO2, self::ISO3);
     }
+
     /**
      * Convert ISO2 to ISO3
      *
      * @param string $code
-     * @return string
+     * @return string|bool
      */
     public function convertIso3ToIso2($code)
     {
         return $this->convertCode($code, self::ISO3, self::ISO2);
     }
+
     /**
      * Get a map of countries as key => value
      *
      * @param string $key
      * @param string $value
-     * @return array
+     * @return array<int|string,mixed>
      */
     public function toMap($key = 'ISO2', $value = 'ShortName')
     {
-        $arr = array();
+        $arr = [];
         foreach ($this->getCountries() as $country) {
             $arr[$country[$key]] = $country[$value];
         }
@@ -150,7 +168,7 @@ class CountriesData
     /**
      * Get the country list, using IntlLocales
      *
-     * @return array
+     * @return array<int|string,mixed>
      */
     public static function getCountryList()
     {

@@ -20,8 +20,8 @@ class Nominatim implements Geocoder
     const LOOKUP_SERVICE = 'lookup';
 
     /**
-     * @param string $query
-     * @param array $params countrycodes
+     * @param ?string $query
+     * @param array<int|string,mixed> $params countrycodes
      * @return Address
      * @throws Exception when there is a problem with the api, otherwise may return an empty address
      */
@@ -71,8 +71,7 @@ class Nominatim implements Geocoder
             throw new Exception("The api returned no result");
         }
 
-        $data = json_decode($result, JSON_OBJECT_AS_ARRAY);
-
+        $data = json_decode($result, true);
         if (!$data) {
             throw new Exception("Failed to decode api results");
         }

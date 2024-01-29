@@ -9,7 +9,7 @@ interface Geolocator
 {
     /**
      * @param string $ip
-     * @param array $params
+     * @param array<int|string,mixed> $params
      * @return Address
      * @throws Exception
      */

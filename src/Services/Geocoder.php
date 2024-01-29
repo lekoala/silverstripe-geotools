@@ -10,7 +10,7 @@ interface Geocoder
     /**
      * @param string $lat
      * @param string $lon
-     * @param array $params
+     * @param array<int|string,mixed> $params
      * @return Address
      * @throws Exception
      */
@@ -18,7 +18,7 @@ interface Geocoder
 
     /**
      * @param string $address
-     * @param array $params
+     * @param array<int|string,mixed> $params
      * @return Address
      * @throws Exception
      */

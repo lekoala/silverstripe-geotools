@@ -2,14 +2,24 @@
 
 namespace LeKoala\GeoTools\Fields;
 
+use ArrayAccess;
 use LeKoala\GeoTools\CountriesList;
 use SilverStripe\Forms\DropdownField;
 
 class CountryDropdownField extends DropdownField
 {
+    /**
+     * @var bool
+     */
     protected $hasEmptyDefault = true;
 
-    public function __construct($name = 'CountryCode', $title = null, $source = array(), $value = null)
+    /**
+     * @param string $name
+     * @param string$title
+     * @param array<string,string>|ArrayAccess<string,string> $source
+     * @param mixed $value
+     */
+    public function __construct($name = 'CountryCode', $title = null, $source = [], $value = null)
     {
         if ($title === null) {
             $title = _t('CountryDropdownField.TITLE', 'Country');

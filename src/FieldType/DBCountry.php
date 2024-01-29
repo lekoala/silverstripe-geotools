@@ -13,7 +13,7 @@ class DBCountry extends DBVarchar
 {
     /**
      * @link http://country.io/phone.json
-     * @var array
+     * @var array<string,string>
      */
     protected static $prefixes = [
         "BD" => "880",
@@ -268,11 +268,20 @@ class DBCountry extends DBVarchar
         "MZ" => "258"
     ];
 
+    /**
+     * @param string $name
+     * @param array<mixed> $options
+     */
     public function __construct($name = null, $options = [])
     {
         parent::__construct($name, 2, $options);
     }
 
+    /**
+     * @param string $title
+     * @param array<mixed> $params
+     * @return CountryDropdownField
+     */
     public function scaffoldFormField($title = null, $params = null)
     {
         $field = CountryDropdownField::create($this->name, $title);

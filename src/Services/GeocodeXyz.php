@@ -16,8 +16,8 @@ class GeocodeXyz implements Geocoder, Geolocator
 
     /**
      * @link https://geocode.xyz/api
-     * @param string $query
-     * @param array $params region, citybias
+     * @param ?string $query
+     * @param array<int|string,mixed> $params region, citybias
      * @return Address
      * @throws Exception when there is a problem with the api, otherwise may return an empty address
      */
@@ -47,13 +47,12 @@ class GeocodeXyz implements Geocoder, Geolocator
         ));
 
         $context = stream_context_create($opts, $opts);
-
-        $result = file_get_contents($url);
+        $result = file_get_contents($url, false, $context);
         if (!$result) {
             throw new Exception("The api returned no result");
         }
 
-        $data = json_decode($result, JSON_OBJECT_AS_ARRAY);
+        $data = json_decode($result, true);
 
         if (!$data) {
             throw new Exception("Failed to decode api results");
@@ -101,7 +100,7 @@ class GeocodeXyz implements Geocoder, Geolocator
     }
 
     /**
-     * @return array
+     * @return array<string>
      */
     public static function listRegions()
     {

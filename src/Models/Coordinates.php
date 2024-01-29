@@ -29,8 +29,10 @@ class Coordinates
         if ($longitude && !is_float($longitude)) {
             $longitude = floatval($longitude);
         }
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
+        if ($latitude && $longitude) {
+            $this->latitude = $latitude;
+            $this->longitude = $longitude;
+        }
     }
 
     /**
@@ -41,7 +43,8 @@ class Coordinates
      * Coordinates::create(['lat','lon'])
      *
      * @param mixed $source
-     * @return $this
+     * @param array<string> $more
+     * @return self
      */
     public static function create($source, ...$more)
     {

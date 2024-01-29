@@ -18,7 +18,7 @@ class Country
      */
     protected $name;
 
-    public function __construct($code = null, $name = null)
+    public function __construct(string $code = null, string $name = null)
     {
         if ($code) {
             $code = strtoupper($code);
@@ -35,7 +35,8 @@ class Country
      * Country::create(['be','Belgium'])
      *
      * @param mixed $source
-     * @return $this
+     * @param array<string> $more
+     * @return self
      */
     public static function create($source, ...$more)
     {
@@ -51,17 +52,15 @@ class Country
     /**
      * Get the uppercased country code
      */
-    public function getCode() : ? string
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
     /**
      * Set the country code
-     *
-     * @return $this
      */
-    public function setCode($code)
+    public function setCode(string $code): self
     {
         $this->code = strtoupper($code);
         return $this;
@@ -70,17 +69,15 @@ class Country
     /**
      * Get the name of the country
      */
-    public function getName() : ? string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
     /**
      * Set the name of the country
-     *
-     * @return $this
      */
-    public function setName($name)
+    public function setName(string $name): self
     {
         $this->name = $name;
         return $this;

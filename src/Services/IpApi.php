@@ -16,7 +16,7 @@ class IpApi implements Geolocator
 
     /**
      * @param string $ip
-     * @param array $params
+     * @param array<int|string,mixed> $params
      * @return Address
      * @throws Exception
      */
@@ -31,7 +31,7 @@ class IpApi implements Geolocator
             throw new Exception("The api returned no result");
         }
 
-        $data = json_decode($result, JSON_OBJECT_AS_ARRAY);
+        $data = json_decode($result, true);
 
         if (!$data) {
             throw new Exception("Failed to decode api results");

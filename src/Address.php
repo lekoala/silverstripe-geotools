@@ -26,14 +26,23 @@ use SilverStripe\ORM\DataObject;
  */
 class Address extends DataObject
 {
+    /**
+     * @var string
+     */
     private static $table_name = 'Address'; // When using namespace, specify table name
 
+    /**
+     * @var array<string,string>
+     */
     private static $db = [
         "Phone" => "Varchar(51)",
         "Email" => "Varchar", // contact email in case of notification
         "Notes" => "Text", // delivery notes etc
     ];
 
+    /**
+     * @return string
+     */
     public function getTitle()
     {
         return $this->getAddress();

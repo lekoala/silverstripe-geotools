@@ -4,10 +4,10 @@ Name: geotools
 SilverStripe\Core\Injector\Injector:
   LeKoala\GeoTools\Services\Geocoder:
     type: singleton
-    class: LeKoala\GeoTools\Services\GeocodeXyz
+    class: LeKoala\GeoTools\Services\Nominatim
   LeKoala\GeoTools\Services\Geolocator:
     type: singleton
-    class: LeKoala\GeoTools\Services\Graphloc
+    class: LeKoala\GeoTools\Services\IpApi
 LeKoala\GeoTools\Address:
   extensions:
     - LeKoala\GeoTools\GeoExtension

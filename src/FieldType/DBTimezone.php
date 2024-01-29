@@ -10,6 +10,10 @@ use LeKoala\GeoTools\Fields\TimezoneDropdown;
  */
 class DBTimezone extends DBVarchar
 {
+    /**
+     * @param string $name
+     * @param array<mixed> $options
+     */
     public function __construct($name = null, $options = [])
     {
         // The mysql.time_zone_name table has a Name column defined with 64 characters.
@@ -17,6 +21,11 @@ class DBTimezone extends DBVarchar
         parent::__construct($name, 64, $options);
     }
 
+    /**
+     * @param string $title
+     * @param mixed $params
+     * @return TimezoneDropdown
+     */
     public function scaffoldFormField($title = null, $params = null)
     {
         $field = TimezoneDropdown::create($this->name, $title);
@@ -24,7 +33,7 @@ class DBTimezone extends DBVarchar
         return $field;
     }
 
-    public function FullAlias()
+    public function FullAlias(): string
     {
         $field = TimezoneDropdown::create('dummy');
 
@@ -44,7 +53,7 @@ class DBTimezone extends DBVarchar
         return $flip[$v] ?? $v;
     }
 
-    public function ShortAlias()
+    public function ShortAlias(): string
     {
         $alias = $this->FullAlias();
         $parts = explode("(", $alias);

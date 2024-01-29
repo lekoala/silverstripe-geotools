@@ -14,7 +14,7 @@ class CountriesList
      *
      * Keys are set to uppercase to match ISO standards
      *
-     * @return array
+     * @return array<string,string>
      */
     public static function get()
     {

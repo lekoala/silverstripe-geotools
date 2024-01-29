@@ -7,7 +7,7 @@ use SilverStripe\ORM\DataExtension;
 /**
  * An extension that make use of our geo tools
  *
- * @property \LeKoala\GeoTools\Address|\LeKoala\GeoTools\GeoExtension $owner
+ * @property \LeKoala\GeoTools\Address&\LeKoala\GeoTools\GeoExtension $owner
  * @property float $Latitude
  * @property float $Longitude
  * @property string $StreetNumber
@@ -19,7 +19,10 @@ use SilverStripe\ORM\DataExtension;
  */
 class GeoExtension extends DataExtension
 {
-    private static $db = array(
+    /**
+     * @var array<string, string>
+     */
+    private static $db = [
         // Coordinates
         'Latitude' => 'Float(10,6)',
         'Longitude' => 'Float(10,6)',
@@ -30,7 +33,7 @@ class GeoExtension extends DataExtension
         'PostalCode' => 'Varchar(32)',
         'Locality' => 'Varchar(255)',
         'CountryCode' => 'Country',
-    );
+    ];
 
     /**
      * @var boolean
@@ -66,6 +69,9 @@ class GeoExtension extends DataExtension
         return $this->owner->CountryCode == $code;
     }
 
+    /**
+     * @return string
+     */
     public function getCountryName()
     {
         return  $this->owner->dbObject('CountryCode')->getCountryName();
