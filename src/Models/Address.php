@@ -2,7 +2,6 @@
 
 namespace LeKoala\GeoTools\Models;
 
-use InvalidArgumentException;
 use LeKoala\GeoTools\Models\Country;
 use LeKoala\GeoTools\Models\Coordinates;
 

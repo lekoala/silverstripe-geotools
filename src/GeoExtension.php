@@ -7,7 +7,7 @@ use SilverStripe\ORM\DataExtension;
 /**
  * An extension that make use of our geo tools
  *
- * @property \LeKoala\GeoTools\Address&\LeKoala\GeoTools\GeoExtension $owner
+ * @property \SilverStripe\ORM\DataObject&\LeKoala\GeoTools\GeoExtension $owner
  * @property float $Latitude
  * @property float $Longitude
  * @property string $StreetNumber
