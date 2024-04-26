@@ -8,8 +8,8 @@ use LeKoala\GeoTools\Models\Address;
 interface Geocoder
 {
     /**
-     * @param string $lat
-     * @param string $lon
+     * @param string|float $lat
+     * @param string|float $lon
      * @param array<int|string,mixed> $params
      * @return Address
      * @throws Exception
